@@ -8,6 +8,7 @@ django-model-utils==4.4.0
 djangorestframework==3.15.0
 djangorestframework-simplejwt==5.3.1
 drf-yasg==1.21.7
+geopy
 idna==3.6
 inflection==0.5.1
 itypes==1.2.0

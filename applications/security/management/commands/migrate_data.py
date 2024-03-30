@@ -1,0 +1,493 @@
+from django.core.management.base import BaseCommand
+from django.db import IntegrityError
+from applications.security.models import Commune, Country, Region
+
+class Command(BaseCommand):
+    help = 'Se inicia la carga de datos para el administrador de clientes'
+
+    def handle(self, *args, **options):
+
+        try:
+            # Verificar si el país ya existe en la base de datos del cliente
+            country = Country.objects.get(cou_code=56)
+        except Country.DoesNotExist:
+            # Si no existe, crear el país
+            country = Country(cou_name='Chile', cou_code=56)
+            try:
+                country.save()
+            except IntegrityError:
+                # En caso de que haya un error de integridad, se supone que el país ya existe, 
+                # se realiza otra consulta para obtenerlo
+                country = Country.objects.get(cou_code=56)
+        except Exception as e:
+            # Manejar cualquier otro error que pueda ocurrir
+            print(f"Error al poblar la base de datos del cliente: {e}")
+
+
+        list_regions = [{
+            're_name': 'Tarapacá',
+            're_region_number': 'I',
+            're_number': 1,
+            'comunnes': [
+                {'com_name': 'Iquique'},
+                {'com_name': 'Alto Hospicio'},
+                {'com_name': 'Pozo Almonte'},
+                {'com_name': 'Camiña'},
+                {'com_name': 'Colchane'},
+                {'com_name': 'Huara'},
+                {'com_name': 'Pica'},
+            ]
+        }, {
+            're_name': 'Antofagasta',
+            're_region_number': 'II',
+            're_number': 2,
+            'comunnes': [
+                {'com_name': 'Antofagasta'},
+                {'com_name': 'Mejillones'},
+                {'com_name': 'Sierra Gorda'},
+                {'com_name': 'Taltal'},
+                {'com_name': 'Calama'},
+                {'com_name': 'Ollagüe'},
+                {'com_name': 'San Pedro de Atacama'},
+                {'com_name': 'Tocopilla'},
+                {'com_name': 'María Elena'},
+
+            ]
+        }, {
+            're_name': 'Atacama',
+            're_region_number': 'III',
+            're_number': 3,
+            'comunnes': [
+                {'com_name': 'Copiapó'},
+                {'com_name': 'Caldera'},
+                {'com_name': 'Tierra Amarilla'},
+                {'com_name': 'Chañaral'},
+                {'com_name': 'Diego de Almagro'},
+                {'com_name': 'Vallenar'},
+                {'com_name': 'Alto del Carmen'},
+                {'com_name': 'Freirina'},
+                {'com_name': 'Huasco'},
+
+            ]
+        }, {
+            're_name': 'Coquimbo',
+            're_region_number': 'IV',
+            're_number': 4,
+            'comunnes': [
+                {'com_name': 'Huasco'},
+                {'com_name': 'La Serena'},
+                {'com_name': 'Coquimbo'},
+                {'com_name': 'Andacollo'},
+                {'com_name': 'La Higuera'},
+                {'com_name': 'Paiguano'},
+                {'com_name': 'Vicuña'},
+                {'com_name': 'Illapel'},
+                {'com_name': 'Canela'},
+                {'com_name': 'Los Vilos'},
+                {'com_name': 'Salamanca'},
+                {'com_name': 'Ovalle'},
+                {'com_name': 'Combarbalá'},
+                {'com_name': 'Monte Patria'},
+                {'com_name': 'Punitaqui'},
+                {'com_name': 'Río Hurtado'},
+
+            ]
+        }, {
+            're_name': 'Valparaiso',
+            're_region_number': 'V',
+            're_number': 5,
+            'comunnes': [
+                {'com_name': 'Río Hurtado'},
+                {'com_name': 'Valparaíso'},
+                {'com_name': 'Casablanca'},
+                {'com_name': 'Concón'},
+                {'com_name': 'Juan Fernández'},
+                {'com_name': 'Puchuncaví'},
+                {'com_name': 'Quilpué'},
+                {'com_name': 'Quintero'},
+                {'com_name': 'Villa Alemana'},
+                {'com_name': 'Viña del Mar'},
+                {'com_name': 'Isla de Pascua'},
+                {'com_name': 'Los Andes'},
+                {'com_name': 'Calle Larga'},
+                {'com_name': 'Rinconada'},
+                {'com_name': 'San Esteban'},
+                {'com_name': 'La Ligua'},
+                {'com_name': 'Cabildo'},
+                {'com_name': 'Papudo'},
+                {'com_name': 'Petorca'},
+                {'com_name': 'Zapallar'},
+                {'com_name': 'Quillota'},
+                {'com_name': 'Calera'},
+                {'com_name': 'Hijuelas'},
+                {'com_name': 'La Cruz'},
+                {'com_name': 'Limache'},
+                {'com_name': 'Nogales'},
+                {'com_name': 'Olmué'},
+                {'com_name': 'San Antonio'},
+                {'com_name': 'Algarrobo'},
+                {'com_name': 'Cartagena'},
+                {'com_name': 'El Quisco'},
+                {'com_name': 'El Tabo'},
+                {'com_name': 'Santo Domingo'},
+                {'com_name': 'San Felipe'},
+                {'com_name': 'Catemu'},
+                {'com_name': 'Llaillay'},
+                {'com_name': 'Panquehue'},
+                {'com_name': 'Putaendo'},
+                {'com_name': 'Santa María'},
+
+            ]
+        }, {
+            're_name': 'Metropolitana de Santiago',
+            're_region_number': 'RM',
+            're_number': 13,
+            'comunnes': [
+                {'com_name': 'Santiago'},
+                {'com_name': 'Cerrillos'},
+                {'com_name': 'Cerro Navia'},
+                {'com_name': 'Conchalí'},
+                {'com_name': 'El Bosque'},
+                {'com_name': 'Estación Central '},
+                {'com_name': 'Huechuraba'},
+                {'com_name': 'Independencia'},
+                {'com_name': 'La Cisterna'},
+                {'com_name': 'La Florida'},
+                {'com_name': 'La Pintana'},
+                {'com_name': 'La Granja'},
+                {'com_name': 'La Reina'},
+                {'com_name': 'Las Condes'},
+                {'com_name': 'Lo Barnechea'},
+                {'com_name': 'Lo Espejo'},
+                {'com_name': 'Lo Prado'},
+                {'com_name': 'Macul'},
+                {'com_name': 'Maipú'},
+                {'com_name': 'Ñuñoa'},
+                {'com_name': 'Pedro Aguirre Cerda'},
+                {'com_name': 'Peñalolén'},
+                {'com_name': 'Providencia'},
+                {'com_name': 'Pudahuel'},
+                {'com_name': 'Quilicura'},
+                {'com_name': 'Quinta Normal'},
+                {'com_name': 'Recoleta'},
+                {'com_name': 'Renca'},
+                {'com_name': 'San Joaquín'},
+                {'com_name': 'San Miguel'},
+                {'com_name': 'San Ramón'},
+                {'com_name': 'Vitacura'},
+                {'com_name': 'Puente Alto'},
+                {'com_name': 'Pirque'},
+                {'com_name': 'San José de Maipo'},
+                {'com_name': 'Colina'},
+                {'com_name': 'Lampa'},
+                {'com_name': 'Tiltil'},
+                {'com_name': 'San Bernardo'},
+                {'com_name': 'Buin'},
+                {'com_name': 'Calera de Tango'},
+                {'com_name': 'Paine'},
+                {'com_name': 'Melipilla'},
+                {'com_name': 'Alhué'},
+                {'com_name': 'Curacaví'},
+                {'com_name': 'María Pinto'},
+                {'com_name': 'San Pedro'},
+                {'com_name': 'Talagante'},
+                {'com_name': 'El Monte'},
+                {'com_name': 'Isla de Maipo'},
+                {'com_name': 'Padre Hurtado'},
+                {'com_name': 'Peñaflor'},
+
+            ]
+        }, {
+            're_name': 'Libertador General Bernardo O\'Higgins',
+            're_region_number': 'VI',
+            're_number': 6,
+            'comunnes': [
+                {'com_name': 'Rancagua'},
+                {'com_name': 'Codegua'},
+                {'com_name': 'Coinco'},
+                {'com_name': 'Coltauco'},
+                {'com_name': 'Doñihue'},
+                {'com_name': 'Graneros'},
+                {'com_name': 'Las Cabras'},
+                {'com_name': 'Machalí'},
+                {'com_name': 'Malloa'},
+                {'com_name': 'Mostazal'},
+                {'com_name': 'Olivar'},
+                {'com_name': 'Peumo'},
+                {'com_name': 'Pichidegua'},
+                {'com_name': 'Quinta de Tilcoco'},
+                {'com_name': 'Rengo'},
+                {'com_name': 'Requínoa'},
+                {'com_name': 'San Vicente'},
+                {'com_name': 'Pichilemu'},
+                {'com_name': 'La Estrella'},
+                {'com_name': 'Litueche'},
+                {'com_name': 'Marchihue'},
+                {'com_name': 'Navidad'},
+                {'com_name': 'Paredones'},
+                {'com_name': 'San Fernando'},
+                {'com_name': 'Chépica'},
+                {'com_name': 'Chimbarongo'},
+                {'com_name': 'Lolol'},
+                {'com_name': 'Nancagua'},
+                {'com_name': 'Palmilla'},
+                {'com_name': 'Peralillo'},
+                {'com_name': 'Placilla'},
+                {'com_name': 'Pumanque'},
+                {'com_name': 'Santa Cruz'},
+            ]
+        }, {
+            're_name': 'Maule',
+            're_region_number': 'VII',
+            're_number': 7,
+            'comunnes': [
+                {'com_name': 'Talca'},
+                {'com_name': 'Constitución'},
+                {'com_name': 'Curepto'},
+                {'com_name': 'Empedrado'},
+                {'com_name': 'Maule'},
+                {'com_name': 'Pelarco'},
+                {'com_name': 'Pencahue'},
+                {'com_name': 'Río Claro'},
+                {'com_name': 'San Clemente'},
+                {'com_name': 'San Rafael'},
+                {'com_name': 'Cauquenes'},
+                {'com_name': 'Chanco'},
+                {'com_name': 'Pelluhue'},
+                {'com_name': 'Curicó'},
+                {'com_name': 'Hualañé'},
+                {'com_name': 'Licantén'},
+                {'com_name': 'Molina'},
+                {'com_name': 'Rauco'},
+                {'com_name': 'Romeral'},
+                {'com_name': 'Sagrada Familia'},
+                {'com_name': 'Teno'},
+                {'com_name': 'Vichuquén'},
+                {'com_name': 'Linares'},
+                {'com_name': 'Colbún'},
+                {'com_name': 'Longaví'},
+                {'com_name': 'Parral'},
+                {'com_name': 'Retiro'},
+                {'com_name': 'San Javier'},
+                {'com_name': 'Villa Alegre'},
+                {'com_name': 'Yerbas Buenas'},
+            ]
+        }, {
+            're_name': 'Biobío',
+            're_region_number': 'VIII',
+            're_number': 8,
+            'comunnes': [
+                {'com_name': 'Concepción'},
+                {'com_name': 'Coronel'},
+                {'com_name': 'Chiguayante'},
+                {'com_name': 'Florida'},
+                {'com_name': 'Hualqui'},
+                {'com_name': 'Lota'},
+                {'com_name': 'Penco'},
+                {'com_name': 'San Pedro de la Paz'},
+                {'com_name': 'Santa Juana'},
+                {'com_name': 'Talcahuano'},
+                {'com_name': 'Tomé'},
+                {'com_name': 'Hualpén'},
+                {'com_name': 'Lebu'},
+                {'com_name': 'Arauco'},
+                {'com_name': 'Cañete'},
+                {'com_name': 'Contulmo'},
+                {'com_name': 'Curanilahue'},
+                {'com_name': 'Los Álamos'},
+                {'com_name': 'Tirúa'},
+                {'com_name': 'Los Ángeles'},
+                {'com_name': 'Antuco'},
+                {'com_name': 'Cabrero'},
+                {'com_name': 'Laja'},
+                {'com_name': 'Mulchén'},
+                {'com_name': 'Nacimiento'},
+                {'com_name': 'Negrete'},
+                {'com_name': 'Quilaco'},
+                {'com_name': 'Quilleco'},
+                {'com_name': 'San Rosendo'},
+                {'com_name': 'Santa Bárbara'},
+                {'com_name': 'Tucapel'},
+                {'com_name': 'Yumbel'},
+                {'com_name': 'Alto Bío-Bío'},
+                {'com_name': 'Chillán'},
+                {'com_name': 'Bulnes'},
+                {'com_name': 'Cobquecura'},
+                {'com_name': 'Coelemu'},
+                {'com_name': 'Coihueco'},
+                {'com_name': 'Chillán Viejo'},
+                {'com_name': 'El Carmen'},
+                {'com_name': 'Ninhue'},
+                {'com_name': 'Ñiquén'},
+                {'com_name': 'Pemuco'},
+                {'com_name': 'Pinto'},
+                {'com_name': 'Portezuelo'},
+                {'com_name': 'Quillón'},
+                {'com_name': 'Quirihue'},
+                {'com_name': 'Ránquil'},
+                {'com_name': 'San Carlos'},
+                {'com_name': 'San Fabián'},
+                {'com_name': 'San Ignacio'},
+                {'com_name': 'San Nicolás'},
+                {'com_name': 'Treguaco'},
+                {'com_name': 'Yungay'},
+            ]
+        }, {
+            're_name': 'La Araucanía',
+            're_region_number': 'IX',
+            're_number': 9,
+            'comunnes': [
+                {'com_name': 'Temuco'},
+                {'com_name': 'Carahue'},
+                {'com_name': 'Cunco'},
+                {'com_name': 'Curarrehue'},
+                {'com_name': 'Freire'},
+                {'com_name': 'Galvarino'},
+                {'com_name': 'Gorbea'},
+                {'com_name': 'Lautaro'},
+                {'com_name': 'Loncoche'},
+                {'com_name': 'Melipeuco'},
+                {'com_name': 'Nueva Imperial'},
+                {'com_name': 'Padre las Casas'},
+                {'com_name': 'Perquenco'},
+                {'com_name': 'Pitrufquén'},
+                {'com_name': 'Pucón'},
+                {'com_name': 'Saavedra'},
+                {'com_name': 'Teodoro Schmidt'},
+                {'com_name': 'Toltén'},
+                {'com_name': 'Vilcún'},
+                {'com_name': 'Villarrica'},
+                {'com_name': 'Cholchol'},
+                {'com_name': 'Angol'},
+                {'com_name': 'Collipulli'},
+                {'com_name': 'Curacautín'},
+                {'com_name': 'Ercilla'},
+                {'com_name': 'Lonquimay'},
+                {'com_name': 'Los Sauces'},
+                {'com_name': 'Lumaco'},
+                {'com_name': 'Purén'},
+                {'com_name': 'Renaico'},
+                {'com_name': 'Traiguén'},
+                {'com_name': 'Victoria'},
+            ]
+        }, {
+            're_name': 'Los Lagos',
+            're_region_number': 'X',
+            're_number': 10,
+            'comunnes': [
+                {'com_name': 'Puerto Montt'},
+                {'com_name': 'Calbuco'},
+                {'com_name': 'Cochamó'},
+                {'com_name': 'Fresia'},
+                {'com_name': 'Frutillar'},
+                {'com_name': 'Los Muermos'},
+                {'com_name': 'Llanquihue'},
+                {'com_name': 'Maullín'},
+                {'com_name': 'Puerto Varas'},
+                {'com_name': 'Castro'},
+                {'com_name': 'Ancud'},
+                {'com_name': 'Chonchi'},
+                {'com_name': 'Curaco de Vélez'},
+                {'com_name': 'Dalcahue'},
+                {'com_name': 'Puqueldón'},
+                {'com_name': 'Queilén'},
+                {'com_name': 'Quellón'},
+                {'com_name': 'Quemchi'},
+                {'com_name': 'Quinchao'},
+                {'com_name': 'Osorno'},
+                {'com_name': 'Puerto Octay'},
+                {'com_name': 'Purranque'},
+                {'com_name': 'Puyehue'},
+                {'com_name': 'Río Negro'},
+                {'com_name': 'San Juan de La Costa'},
+                {'com_name': 'San Pablo'},
+                {'com_name': 'Chaitén'},
+                {'com_name': 'Futaleufú'},
+                {'com_name': 'Hualaihué'},
+                {'com_name': 'Palena'},
+            ]
+        }, {
+            're_name': 'Aisén del General Carlos Ibáñez del Campo',
+            're_region_number': 'XI',
+            're_number': 11,
+            'comunnes': [
+                {'com_name': 'Coihaique'},
+                {'com_name': 'Lago Verde'},
+                {'com_name': 'Aysen'},
+                {'com_name': 'Cisnes'},
+                {'com_name': 'Guaitecas'},
+                {'com_name': 'Cochrane'},
+                {'com_name': 'O\'Higgins'},
+                {'com_name': 'Tortel'},
+                {'com_name': 'Chile Chico'},
+                {'com_name': 'Río Ibáñez'},
+            ]
+        }, {
+            're_name': 'Magallanes y de la Antártica Chilena',
+            're_region_number': 'XII',
+            're_number': 12,
+            'comunnes': [
+                {'com_name': 'Punta Arenas'},
+                {'com_name': 'Laguna Blanca'},
+                {'com_name': 'Río Verde'},
+                {'com_name': 'San Gregorio'},
+                {'com_name': 'Cabo de Hornos'},
+                {'com_name': 'Antártica'},
+                {'com_name': 'Porvenir'},
+                {'com_name': 'Primavera'},
+                {'com_name': 'Timaukel'},
+                {'com_name': 'Natales'},
+                {'com_name': 'Torres del Paine'},
+            ]
+        }, {
+            're_name': 'Los Ríos',
+            're_region_number': 'XIV',
+            're_number': 14,
+            'comunnes': [
+                {'com_name': 'Valdivia'},
+                {'com_name': 'Corral'},
+                {'com_name': 'Lanco'},
+                {'com_name': 'Los Lagos'},
+                {'com_name': 'Máfil'},
+                {'com_name': 'Mariquina'},
+                {'com_name': 'Paillaco'},
+                {'com_name': 'Panguipulli'},
+                {'com_name': 'La Unión'},
+                {'com_name': 'Futrono'},
+                {'com_name': 'Lago Ranco'},
+                {'com_name': 'Río Bueno'},
+            ]
+        }, {
+            're_name': 'Arica y Parinacota',
+            're_region_number': 'XV',
+            're_number': 15,
+            'comunnes': [
+                {'com_name': 'Arica'},
+                {'com_name': 'Camarones'},
+                {'com_name': 'Putre'},
+                {'com_name': 'General Lagos'},
+            ]
+        }]
+
+        for lr in list_regions:
+            try:
+                # Verificar si la región ya existe en la base de datos del cliente
+                region = Region.objects.get(re_number=lr['re_number'])
+            except Region.DoesNotExist:
+                # Si no existe, crear la región
+                region = Region(
+                    re_name=lr['re_name'],
+                    country_id=Country.objects.get(cou_code=56),  # Llamada a una función para obtener el país
+                    re_region_acronym=lr['re_region_number'],
+                    re_number=lr['re_number']
+                )
+                region.save()
+
+                # Crear comunas para la región
+                for c in lr['comunnes']:
+                    commune = Commune(com_name=c['com_name'], region_id=region)
+                    commune.save()
+            except Exception as e:
+                print(f"Error al poblar la base de datos del cliente con las regiones y comunas: {e}")
+
+        self.stdout.write('¡La migracion fue realizada con exito!')

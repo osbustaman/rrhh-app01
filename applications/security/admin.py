@@ -40,9 +40,11 @@ class CustomersAdmin(admin.ModelAdmin):
     change_form_template = "admin/btn_migrate.html"
 
     def response_change(self, request, obj):
+
         if "migrate_db" in request.POST:
             self.message_user(request, "La base de datos fue migrada correctamente", "success")
             return HttpResponseRedirect(".")
+        
         
         return super().response_change(request, obj)
 

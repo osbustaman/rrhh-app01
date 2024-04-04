@@ -26,4 +26,5 @@ urlpatterns = [
     path('logout-drf', Logout.as_view(), name='logout-drf'),
 
     path('', include('applications.security.urls')),
+    path('', include('applications.administrator.urls')),
 ]

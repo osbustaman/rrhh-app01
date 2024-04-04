@@ -43,17 +43,18 @@ def verify_token(func):
     def wrapper(self, request, *args, **kwargs):
         secret = config('SECRET_KEY')
 
-        encoded_token = request.headers["token"]
-        if ((len(encoded_token) > 0) and (encoded_token.count('.') <= 3)):
-            try:
-                decode(encoded_token, secret, algorithms=["HS256"])
-                return func(self, request, *args, **kwargs)
-            except ExpiredSignatureError:
-                return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
-            except InvalidSignatureError:
-                return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
-            except DecodeError:
-                return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)   
+        encoded_token = request.headers.get("token", False)
+        if encoded_token:
+            if ((len(encoded_token) > 0) and (encoded_token.count('.') <= 3)):
+                try:
+                    decode(encoded_token, secret, algorithms=["HS256"])
+                    return func(self, request, *args, **kwargs)
+                except ExpiredSignatureError:
+                    return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+                except InvalidSignatureError:
+                    return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+                except DecodeError:
+                    return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)   
             
         return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 

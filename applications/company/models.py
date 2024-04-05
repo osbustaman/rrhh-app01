@@ -390,3 +390,30 @@ class Apv(models.Model):
         verbose_name_plural = "Listado de entidades apv"
         db_table = "apv"
         ordering = ['apv_id']
+
+
+class Bank(models.Model):
+    OPTIONS = (
+        ('Y', 'SI'),
+        ('N', 'NO'),
+    )
+
+    ban_id = models.AutoField("Key", primary_key=True)
+    ban_name = models.CharField("Nombre del banco", max_length=150)
+    ban_code = models.CharField("Código", max_length=10)
+    ban_active = models.CharField(
+        "Activo", max_length=1, choices=OPTIONS, default="Y")
+
+    def __int__(self):
+        return self.ban_id
+
+    def __str__(self):
+        return f"{self.ban_name}"
+
+    def save(self, *args, **kwargs):
+        super(Bank, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Listado de bancos"
+        db_table = "banks"
+        ordering = ['ban_id']

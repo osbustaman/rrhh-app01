@@ -285,6 +285,36 @@ class Customers(TimeStampedModel):
         return f"/{self.cus_name_bd.lower()}/"
     
 
+    # def __create_database(self):
+    #     try:
+    #         # Conexión a la base de datos PostgreSQL
+    #         connection = psycopg2.connect(
+    #             dbname='postgres',
+    #             user=settings.DATABASES['default']['USER'],
+    #             host=settings.DATABASES['default']['HOST'],
+    #             password=settings.DATABASES['default']['PASSWORD']
+    #         )
+    #         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    #     except psycopg2.Error as e:
+    #         print(f"Error al conectar a la base de datos: {e}")
+    #         return False
+
+    #     # Cursor para ejecutar consultas
+    #     cursor = connection.cursor()
+
+    #     try:
+    #         # Crear la base de datos si no existe
+    #         cursor.execute("CREATE DATABASE IF NOT EXISTS %s;" % self.cus_name_bd)
+    #         print(f"Base de datos {self.cus_name_bd} creada exitosamente.")
+    #     except psycopg2.Error as e:
+    #         print(f"Error al crear la base de datos: {e}")
+    #     finally:
+    #         # Cerrar la conexión y el cursor
+    #         cursor.close()
+    #         connection.close()
+
+    #     return True
+
     def __create_database(self):
         try:
             # Conexión a la base de datos PostgreSQL
@@ -303,15 +333,20 @@ class Customers(TimeStampedModel):
         cursor = connection.cursor()
 
         try:
-            # Crear la base de datos si no existe
-            cursor.execute("CREATE DATABASE IF NOT EXISTS %s;" % self.cus_name_bd)
-            print(f"Base de datos {self.cus_name_bd} creada exitosamente.")
+            # Verificar si la base de datos existe
+            cursor.execute(f"SELECT 1 FROM pg_database WHERE datname='{self.cus_name_bd}'")
+            exists = cursor.fetchone()
+            if not exists:
+                # Crear la base de datos si no existe
+                cursor.execute(f"CREATE DATABASE {self.cus_name_bd}")
+                print(f"Base de datos {self.cus_name_bd} creada exitosamente.")
         except psycopg2.Error as e:
             print(f"Error al crear la base de datos: {e}")
         finally:
             # Cerrar la conexión y el cursor
             cursor.close()
             connection.close()
+
 
         return True
 

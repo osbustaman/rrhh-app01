@@ -72,6 +72,7 @@ def verify_token_cls(cls):
             if encoded_token and len(encoded_token) > 0 and encoded_token.count('.') <= 3:
                 try:
                     token_decode = decode(encoded_token, secret, algorithms=["HS256"])
+                    
                     object_user = User.objects.get(email=token_decode['mail'])
                     if object_user:
                         return super().dispatch(request, *args, **kwargs)

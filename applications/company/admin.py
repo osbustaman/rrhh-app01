@@ -25,10 +25,11 @@ class MutualSecurityAdmin(admin.ModelAdmin):
 
 
 class BoxesCompensationAdmin(admin.ModelAdmin):
-    list_display = ['bc_id', 'bc_name', 'bc_code', 'bc_rut', 'bc_active']
-    list_filter = ['bc_name']
-    search_fields = ['lsi_name']
+    list_display = ['bc_id', 'bc_rut', 'bc_business_name', 'bc_fantasy_name', 'bc_phone', 'bc_email', 'bc_address']
+    list_filter = ['bc_fantasy_name', 'country__cou_name', 'region__re_name', 'commune__com_name']
+    search_fields = ['bc_rut', 'bc_fantasy_name', 'bc_business_name']
     list_per_page = 10
+
 
 admin.site.register(Subsidiary, SubsidiaryAdmin)
 admin.site.register(Company, CompanyAdmin)

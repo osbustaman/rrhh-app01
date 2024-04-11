@@ -9,6 +9,7 @@ class BoxesCompensationListCreate(generics.ListCreateAPIView):
     queryset = BoxesCompensation.objects.all()
     serializer_class = BoxesCompensationSerializer
 
+#region BoxesCompensationListCreate
 @verify_token_cls
 class BoxesCompensationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = BoxesCompensation.objects.all()

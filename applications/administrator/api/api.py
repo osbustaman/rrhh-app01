@@ -22,18 +22,23 @@ class ListAdminUsersView(generics.ListAPIView):
 
     @verify_token
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.serializer_class(queryset, many=True)
-        
-        # Obtener el nombre de la base de datos de la solicitud
-        db_name = request.query_params.get('database_name')
-        
-        # Incluir el nombre de la base de datos en la respuesta
-        data = {
-            'database_name': db_name,
-            'users': serializer.data
-        }
-        return Response(data)
+        try:
+            queryset = self.get_queryset()
+            serializer = self.serializer_class(queryset, many=True)
+            
+            # Obtener el nombre de la base de datos de la solicitud
+            db_name = request.query_params.get('database_name')
+            
+            # Incluir el nombre de la base de datos en la respuesta
+            data = {
+                'database_name': db_name,
+                'users': serializer.data
+            }
+            return Response(data)
+        except ValueError as ex:
+            return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateUserView(generics.CreateAPIView):

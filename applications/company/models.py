@@ -15,9 +15,15 @@ class BoxesCompensation(models.Model):
     )
 
     bc_id = models.AutoField("Key", primary_key=True)
-    bc_name = models.CharField("Nombre", max_length=100)
-    bc_code = models.CharField("Código", max_length=100)
     bc_rut = models.CharField("Rut", max_length=10)
+    bc_business_name = models.CharField("Razón social", max_length=255)
+    bc_fantasy_name = models.CharField("Nombre de fantasía", max_length=255)
+    bc_phone = models.CharField("Teléfono", max_length=100, null=True, blank=True)
+    bc_email = models.CharField("Correo electrónico", max_length=100, null=True, blank=True)
+    bc_address = models.CharField("Dirección", max_length=255, null=True, blank=True)
+    country = models.ForeignKey(Country, verbose_name="Country", db_column="bc_country_id", on_delete=models.PROTECT, null=True, blank=True)
+    region = models.ForeignKey(Region, verbose_name="Region", db_column="bc_region_id", on_delete=models.PROTECT, null=True, blank=True)
+    commune = models.ForeignKey(Commune, verbose_name="Commune", db_column="bc_commune_id", on_delete=models.PROTECT, null=True, blank=True)
     bc_active = models.CharField(
         "Activo", max_length=1, choices=OPTIONS, default="Y")
 
@@ -34,6 +40,7 @@ class BoxesCompensation(models.Model):
         verbose_name_plural = "Listado de cajas de compensación"
         db_table = "boxes_compensation"
         ordering = ['bc_id']
+
 
 
 class MutualSecurity(models.Model):

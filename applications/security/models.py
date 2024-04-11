@@ -878,6 +878,15 @@ class Customers(TimeStampedModel):
                 return False
 
         return True
+    
+    def __create_boxes_compensation(self):
+        list_boxes = [{
+            "bc_rut": "81826800-9",
+            "bc_business_name": "CAJA DE COMPENSACION DE ASIGNACION FAMILIAR DE LOS ANDES",
+            "bc_fantasy_name": "CCAF LOS ANDES",
+            "bc_phone": "225100374",
+            "bc_address": "CALLE GENERAL CALDERON 121",
+        }]
 
     populate_customer_base_regions_and_comunnes = property(__populate_customer_base_regions_and_comunnes)
     create_name_db = property(__create_name_db)

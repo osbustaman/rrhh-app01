@@ -42,7 +42,6 @@ class BoxesCompensation(models.Model):
         ordering = ['bc_id']
 
 
-
 class MutualSecurity(models.Model):
 
     OPTIONS = (
@@ -164,7 +163,6 @@ class Company(models.Model):
         ordering = ['com_id']
 
 
-# Sucursal
 class Subsidiary(models.Model):
 
     OPTIONS = (
@@ -234,7 +232,6 @@ class Subsidiary(models.Model):
         ordering = ['sub_id']
 
 
-# Cargo
 class Position(models.Model):
 
     OPTIONS = (

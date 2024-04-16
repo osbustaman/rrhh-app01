@@ -4,14 +4,15 @@ import psycopg2
 
 from decouple import config
 from django.db import models, IntegrityError
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import call_command
+
 from model_utils.models import TimeStampedModel
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from unidecode import unidecode
-
 
 # Create your models here.
 
@@ -283,37 +284,6 @@ class Customers(TimeStampedModel):
 
     def __link_customer(self):
         return f"/{self.cus_name_bd.lower()}/"
-    
-
-    # def __create_database(self):
-    #     try:
-    #         # Conexión a la base de datos PostgreSQL
-    #         connection = psycopg2.connect(
-    #             dbname='postgres',
-    #             user=settings.DATABASES['default']['USER'],
-    #             host=settings.DATABASES['default']['HOST'],
-    #             password=settings.DATABASES['default']['PASSWORD']
-    #         )
-    #         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    #     except psycopg2.Error as e:
-    #         print(f"Error al conectar a la base de datos: {e}")
-    #         return False
-
-    #     # Cursor para ejecutar consultas
-    #     cursor = connection.cursor()
-
-    #     try:
-    #         # Crear la base de datos si no existe
-    #         cursor.execute("CREATE DATABASE IF NOT EXISTS %s;" % self.cus_name_bd)
-    #         print(f"Base de datos {self.cus_name_bd} creada exitosamente.")
-    #     except psycopg2.Error as e:
-    #         print(f"Error al crear la base de datos: {e}")
-    #     finally:
-    #         # Cerrar la conexión y el cursor
-    #         cursor.close()
-    #         connection.close()
-
-    #     return True
 
     def __create_database(self):
         try:
@@ -880,18 +850,172 @@ class Customers(TimeStampedModel):
         return True
     
     def __create_boxes_compensation(self):
-        list_boxes = [{
-            "bc_rut": "81826800-9",
-            "bc_business_name": "CAJA DE COMPENSACION DE ASIGNACION FAMILIAR DE LOS ANDES",
-            "bc_fantasy_name": "CCAF LOS ANDES",
-            "bc_phone": "225100374",
-            "bc_address": "CALLE GENERAL CALDERON 121",
-        }]
+        
+        from applications.company.models import BoxesCompensation
+
+        list_boxes = [
+                        {
+                            "bc_rut": "81826800-9",
+                            "bc_business_name": "CAJA DE COMPENSACION DE ASIGNACION FAMILIAR DE LOS ANDES",
+                            "bc_fantasy_name": "CCAF LOS ANDES",
+                            "bc_phone": "225100374",
+                            "bc_email": "N/A",
+                            "bc_address": "CALLE GENERAL CALDERON 121",
+                            "region": "Metropolitana de Santiago",
+                            "commune": "Providencia",
+                        }, {
+                            "bc_rut": "70016160-9",
+                            "bc_business_name": "CAJA DE COMPENSACION DE ASIGNACION FAMILIAR LA ARAUCANA",
+                            "bc_fantasy_name": "CCAF LA ARAUCANA",
+                            "bc_phone": "4228252",
+                            "bc_email": "ggeneral@laaraucana.cl",
+                            "bc_address": "MERCED 472",
+                            "region": "Metropolitana de Santiago",
+                            "commune": "Santiago",
+                        }, {
+                            "bc_rut": "70016330-K",
+                            "bc_business_name": "CAJA DE COMPENSACION DE ASIGNACION FAMILIAR LOS HEROES",
+                            "bc_fantasy_name": "CCAF LOS HEROES",
+                            "bc_phone": "7296260",
+                            "bc_email": "N/A",
+                            "bc_address": "AV. HOLANDA 64",
+                            "region": "Metropolitana de Santiago",
+                            "commune": "Providencia",
+                        }
+                    ]
+
+        for box_data in list_boxes:
+
+            # Verificar si el registro ya existe
+            if not BoxesCompensation.objects.using(self.cus_name_bd).filter(bc_rut=box_data['bc_rut']).exists():
+                
+                region_name = box_data.pop("region")
+                commune_name = box_data.pop("commune") 
+                
+                region_instance = Region.objects.using(self.cus_name_bd).get(re_name=region_name)
+                commune_instance = Commune.objects.using(self.cus_name_bd).get(com_name=commune_name, region_id=region_instance)   
+                
+                BoxesCompensation.objects.using(self.cus_name_bd).create(
+                    region=region_instance,
+                    commune=commune_instance,
+                    **box_data
+                )
+
+    def __create_banks(self):
+
+        from applications.company.models import Bank
+
+        list_banks = [
+            {
+                "ban_name": "BANCO DE CHILE",
+                "ban_code": "001"
+            }, {
+                "ban_name": "BANCO INTERNACIONAL",
+                "ban_code": "009"
+            }, {
+                "ban_name": "SCOTIABANK CHILE",
+                "ban_code": "014"
+            }, {
+                "ban_name": "BANCO DE CREDITO E INVERSIONES",
+                "ban_code": "016"
+            }, {
+                "ban_name": "BANCO BICE",
+                "ban_code": "028"
+            }, {
+                "ban_name": "HSBC BANK (CHILE)",
+                "ban_code": "031"
+            }, {
+                "ban_name": "BANCO SANTANDER-CHILE",
+                "ban_code": "037"
+            }, {
+                "ban_name": "BANCO ITAÚ CHILE",
+                "ban_code": "039"
+            }, {
+                "ban_name": "BANCO SECURITY",
+                "ban_code": "049"
+            }, {
+                "ban_name": "BANCO FALABELLA",
+                "ban_code": "051"
+            }, {
+                "ban_name": "BANCO RIPLEY",
+                "ban_code": "053"
+            }, {
+                "ban_name": "BANCO CONSORCIO",
+                "ban_code": "055"
+            }, {
+                "ban_name": "BANCO BTG PACTUAL CHILE",
+                "ban_code": "059"
+            }
+        ]
+
+        for bank_data in list_banks:
+
+            # Verificar si el registro ya existe
+            if not Bank.objects.using(self.cus_name_bd).filter(ban_code=bank_data['ban_code']).exists():
+
+                bank_name = bank_data.pop("ban_name")
+                bank_code = bank_data.pop("ban_code")
+
+                Bank.objects.using(self.cus_name_bd).create(
+                    ban_name=bank_name,
+                    ban_code=bank_code,
+                )
+
+    def __create_afp(self):
+
+        from applications.company.models import Afp
+
+
+        list_banks = [
+            {
+                "afp_name": "Capital",
+                "afp_dependent_worker_rate": 11.44,
+                "afp_sis": 1.49,
+                "afp_self_employed_worker_rate": 12.93
+            },{
+                "afp_name": "Cuprum",
+                "afp_dependent_worker_rate": 11.44,
+                "afp_sis": 1.49,
+                "afp_self_employed_worker_rate": 12.93
+            },{
+                "afp_name": "Habitat",
+                "afp_dependent_worker_rate": 11.27,
+                "afp_sis": 1.49,
+                "afp_self_employed_worker_rate": 11.76
+            },{
+                "afp_name": "PlanVital",
+                "afp_dependent_worker_rate": 11.16,
+                "afp_sis": 1.49,
+                "afp_self_employed_worker_rate": 11.65
+            },{
+                "afp_name": "ProVida",
+                "afp_dependent_worker_rate": 11.5,
+                "afp_sis": 1.49,
+                "afp_self_employed_worker_rate": 11.94
+            },{
+                "afp_name": "Modelo",
+                "afp_dependent_worker_rate": 10.58,
+                "afp_sis": 1.49,
+                "afp_self_employed_worker_rate": 12.07
+            },{
+                "afp_name": "Uno",
+                "afp_dependent_worker_rate": 10.49,
+                "afp_sis": 1.49,
+                "afp_self_employed_worker_rate": 11.98
+            },
+        ]
+
+        for afp_data in list_banks:
+            Afp.objects.using(self.cus_name_bd).create(
+                **afp_data
+            )
 
     populate_customer_base_regions_and_comunnes = property(__populate_customer_base_regions_and_comunnes)
     create_name_db = property(__create_name_db)
     create_data_base = property(__create_database)
     create_migrate_init = property(__create_migrate)
+    create_boxes_compensation = property(__create_boxes_compensation)
+    create_banks = property(__create_banks)
 
     def save(self, *args, **kwargs):
         self.cus_name = self.cus_name.lower()
@@ -902,6 +1026,8 @@ class Customers(TimeStampedModel):
         self.create_migrate_init
         self.populate_customer_base_country
         self.populate_customer_base_regions_and_comunnes
+        self.create_boxes_compensation
+        self.create_banks
 
         super(Customers, self).save(*args, **kwargs)
 

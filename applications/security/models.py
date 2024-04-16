@@ -965,50 +965,59 @@ class Customers(TimeStampedModel):
 
         from applications.company.models import Afp
 
-
-        list_banks = [
+        list_afp = [
             {
                 "afp_name": "Capital",
+                "afp_code_previred": "401",
                 "afp_dependent_worker_rate": 11.44,
                 "afp_sis": 1.49,
                 "afp_self_employed_worker_rate": 12.93
             },{
                 "afp_name": "Cuprum",
+                "afp_code_previred": "402",
                 "afp_dependent_worker_rate": 11.44,
                 "afp_sis": 1.49,
                 "afp_self_employed_worker_rate": 12.93
             },{
                 "afp_name": "Habitat",
+                "afp_code_previred": "403",
                 "afp_dependent_worker_rate": 11.27,
                 "afp_sis": 1.49,
                 "afp_self_employed_worker_rate": 11.76
             },{
                 "afp_name": "PlanVital",
+                "afp_code_previred": "405",
                 "afp_dependent_worker_rate": 11.16,
                 "afp_sis": 1.49,
                 "afp_self_employed_worker_rate": 11.65
             },{
                 "afp_name": "ProVida",
+                "afp_code_previred": "406",
                 "afp_dependent_worker_rate": 11.5,
                 "afp_sis": 1.49,
                 "afp_self_employed_worker_rate": 11.94
             },{
                 "afp_name": "Modelo",
+                "afp_code_previred": "404",
                 "afp_dependent_worker_rate": 10.58,
                 "afp_sis": 1.49,
                 "afp_self_employed_worker_rate": 12.07
             },{
                 "afp_name": "Uno",
+                "afp_code_previred": "407",
                 "afp_dependent_worker_rate": 10.49,
                 "afp_sis": 1.49,
                 "afp_self_employed_worker_rate": 11.98
             },
         ]
 
-        for afp_data in list_banks:
-            Afp.objects.using(self.cus_name_bd).create(
-                **afp_data
-            )
+        for afp_data in list_afp:
+
+            # Verificar si el registro ya existe
+            if not Afp.objects.using(self.cus_name_bd).filter(afp_code_previred=afp_data['afp_code_previred']).exists():
+                Afp.objects.using(self.cus_name_bd).create(
+                    **afp_data
+                )
 
     populate_customer_base_regions_and_comunnes = property(__populate_customer_base_regions_and_comunnes)
     create_name_db = property(__create_name_db)
@@ -1016,6 +1025,7 @@ class Customers(TimeStampedModel):
     create_migrate_init = property(__create_migrate)
     create_boxes_compensation = property(__create_boxes_compensation)
     create_banks = property(__create_banks)
+    create_afp = property(__create_afp)
 
     def save(self, *args, **kwargs):
         self.cus_name = self.cus_name.lower()
@@ -1028,6 +1038,7 @@ class Customers(TimeStampedModel):
         self.populate_customer_base_regions_and_comunnes
         self.create_boxes_compensation
         self.create_banks
+        self.create_afp
 
         super(Customers, self).save(*args, **kwargs)
 

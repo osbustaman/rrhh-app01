@@ -1018,7 +1018,7 @@ class Customers(TimeStampedModel):
                 Afp.objects.using(self.cus_name_bd).create(
                     **afp_data
                 )
-
+    # https://www.spensiones.cl/portal/compendio/596/w3-propertyvalue-4432.html
     populate_customer_base_regions_and_comunnes = property(__populate_customer_base_regions_and_comunnes)
     create_name_db = property(__create_name_db)
     create_data_base = property(__create_database)

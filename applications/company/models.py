@@ -349,7 +349,7 @@ class Afp(models.Model):
     afp_self_employed_worker_rate = models.FloatField(
         "Tasa traba. independiente", default=0)
     afp_active = models.CharField(
-        "Activo", max_length=1, choices=OPTIONS, default="T")
+        "Activo", max_length=1, choices=OPTIONS, default="Y")
 
     def __int__(self):
         return self.afp_id

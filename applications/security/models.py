@@ -961,6 +961,101 @@ class Customers(TimeStampedModel):
                     ban_code=bank_code,
                 )
 
+    
+    def __create_health_institution(self):
+
+        from applications.company.models import Health
+
+        list_health_institution = [
+            {
+                'healt_name': 'Fonasa',
+                'healt_code': '100',
+                'healt_entity_type': 'F'
+            },
+            {
+                'healt_name': 'Banmédica S.A.',
+                'healt_code': '99',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Isalud Ltda.',
+                'healt_code': '63',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Colmena Golden Cross S.A.',
+                'healt_code': '67',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Consalud S.A.',
+                'healt_code': '107',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Cruz Blanca S.A.',
+                'healt_code': '78',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Cruz del Norte Ltda.',
+                'healt_code': '94',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Nueva Masvida S.A.',
+                'healt_code': '81',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Fundación Ltda.',
+                'healt_code': '76',
+                'healt_entity_type': 'I'
+            },
+            {
+                'healt_name': 'Esencial S.A.',
+                'healt_code': '108',
+                'healt_entity_type': 'I'
+            }
+        ]
+
+        for health_institution in list_health_institution:
+
+            # Verificar si el registro ya existe
+            if not Health.objects.using(self.cus_name_bd).filter(healt_code=health_institution['healt_code']).exists():
+                Health.objects.using(self.cus_name_bd).create(
+                    **health_institution
+                )
+
+
+    def __create_mutual_security(self):
+
+        from applications.company.models import MutualSecurity
+
+        list_mutual_security = [
+            {
+                "ms_name": "Asociación Chilena de Seguridad",
+                "ms_rut": "70360100-6",
+                "ms_codeprevired": "201"
+            },{
+                "ms_name": "Instituto de Seguridad del Trabajo",
+                "ms_rut": "70015580-3",
+                "ms_codeprevired": "202"
+            },{
+                "ms_name": "Mutual de Seguridad de la Cámara Chilena de la Construcción",
+                "ms_rut": "70285100-9",
+                "ms_codeprevired": "203"
+            },
+        ]
+
+        for afp_mutual_security in list_mutual_security:
+
+            # Verificar si el registro ya existe
+            if not MutualSecurity.objects.using(self.cus_name_bd).filter(ms_rut=afp_mutual_security['ms_rut']).exists():
+                MutualSecurity.objects.using(self.cus_name_bd).create(
+                    **afp_mutual_security
+                )
+
     def __create_afp(self):
 
         from applications.company.models import Afp
@@ -1018,7 +1113,7 @@ class Customers(TimeStampedModel):
                 Afp.objects.using(self.cus_name_bd).create(
                     **afp_data
                 )
-    # https://www.spensiones.cl/portal/compendio/596/w3-propertyvalue-4432.html
+
     populate_customer_base_regions_and_comunnes = property(__populate_customer_base_regions_and_comunnes)
     create_name_db = property(__create_name_db)
     create_data_base = property(__create_database)
@@ -1026,6 +1121,8 @@ class Customers(TimeStampedModel):
     create_boxes_compensation = property(__create_boxes_compensation)
     create_banks = property(__create_banks)
     create_afp = property(__create_afp)
+    create_mutual_security = property(__create_mutual_security)
+    create_health_institution = property(__create_health_institution)
 
     def save(self, *args, **kwargs):
         self.cus_name = self.cus_name.lower()
@@ -1039,6 +1136,8 @@ class Customers(TimeStampedModel):
         self.create_boxes_compensation
         self.create_banks
         self.create_afp
+        self.create_mutual_security
+        self.create_health_institution
 
         super(Customers, self).save(*args, **kwargs)
 

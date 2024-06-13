@@ -16,6 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenBlacklistView
+)
+
 from applications.security.api.api_login import Login, Logout
 
 urlpatterns = [
@@ -28,4 +34,8 @@ urlpatterns = [
     path('', include('applications.security.urls')),
     path('', include('applications.administrator.urls')),
     path('', include('applications.company.urls')),
+
+
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
 ]

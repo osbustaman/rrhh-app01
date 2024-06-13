@@ -17,6 +17,8 @@ from rest_framework.permissions import AllowAny
 
 from applications.security.api.serializer import CustomTokenObtainPairSerializer, CustomUserSerializer
 from applications.security.decorators import verify_token
+from remunerations.decorators import verify_token_cls
+from remunerations.utils import decode_token, revoke_token, write_token
 
 class Login(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -34,19 +36,13 @@ class Login(TokenObtainPairView):
             if login_serializer.is_valid():
                 user_serializer = CustomUserSerializer(user)
 
-                notSensibleData = {
-                    'mail': user.email,
-                    'name': user.username,
-                }
-
-                token = self.write_token(data=notSensibleData)
-
-                request.session['token'] = str(token.decode('utf-8'))
+                request.session['token'] = login_serializer.validated_data.get('access')
+                request.session['refresh'] = login_serializer.validated_data.get('refresh')
                 request.session['user'] = user_serializer.data
-                request.session['is_superuser'] = user.is_superuser
 
                 return Response({
                     'token': request.session['token'],
+                    'refresh_token': request.session['refresh'],
                     'user': request.session['user'],
                     'message': 'Inicio de sesion exitosa'
                 }, status=status.HTTP_200_OK)
@@ -57,30 +53,69 @@ class Login(TokenObtainPairView):
                 'error': 'Contraseña o nombre de usuario incorrectos'
             }, status=status.HTTP_400_BAD_REQUEST)
     
-    def expire_date(self, days: int):
-        now = datetime.datetime.now()
-        new_date = now + datetime.timedelta(days)
-        return new_date
-
-    def write_token(self, data: dict):
-        token = encode(payload={**data, 'exp': self.expire_date(int(config('EXPIRE_DATE'))) }, key=config('SECRET_KEY'), algorithm='HS256')
-        return token.encode('UTF-8')
     
-class Logout(generics.GenericAPIView):
+class Logout2(generics.GenericAPIView):
     serializer_class = CustomTokenObtainPairSerializer
 
     @verify_token
-    def post(self, request, *args, **kwargs):
-        id = request.data.get('id', '')
-        user = User.objects.filter(id=id)
-        if user.exists():
+    def get(self, request, *args, **kwargs):
+
+        try:
             # Invalidar el token actual
-            refresh_token = RefreshToken.for_user(user.first())
-            refresh_token.blacklist()
+            is_revoke = revoke_token(request.headers.get("token"))
+
+            if not is_revoke['success']:
+                raise Exception(is_revoke['message'])
 
             return Response({
                 'message': 'Sesión cerrada con éxito'
             }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({
+                'message': 'No existe este usuario'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class Logout(generics.GenericAPIView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+    @verify_token
+    def get(self, request, *args, **kwargs):
+
+        get_decode_token = decode_token(request.headers.get("token"))
+
+        user = User.objects.filter(id=get_decode_token['user_id'])
+        if user.exists():
+            RefreshToken.for_user(user.first())
+            return Response({
+                'message': 'Sesion cerrada con exito'
+            }, status=status.HTTP_200_OK)
         return Response({
-            'message': 'No existe este usuario'
-        }, status=status.HTTP_400_BAD_REQUEST)
+                'message': 'No existe este usuario'
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@verify_token_cls
+class GetDataUserAdmin(generics.GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            request.headers.get("token")
+            get_decode_token = decode_token(request.headers.get("token"))
+
+            data_user = User.objects.get(id=get_decode_token['user_id'])
+
+            return Response({
+                'message': {
+                    'mail': data_user.email,
+                    'first_name': data_user.first_name,
+                    'last_name': data_user.last_name,
+                    'name': data_user.username
+                }
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({
+                'message': 'Token no valido'
+            }, status=status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,6 @@
 from django.urls import include, path
+
+from applications.security.api.api_login import GetDataUserAdmin
 from . import views
 
 from rest_framework import routers
@@ -24,6 +26,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    path('data-user', GetDataUserAdmin.as_view(), name='GetDataUserAdmin')
 ]
 

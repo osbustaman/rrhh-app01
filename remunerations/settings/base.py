@@ -31,9 +31,10 @@ CORS_ALLOWED_ORIGINS = [
 	"http://localhost:5173"
 ]
 
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:5173"
+CORS_ALLOW_HEADERS = [
+    "token",
 ]
+
 
 CORS_ALLOW_METHODS = (
     "DELETE",
@@ -60,6 +61,8 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
     'corsheaders'
 ]
@@ -74,7 +77,6 @@ LOCAL_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'remunerations.middleware.multi_db.multidb_middleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -170,3 +172,17 @@ REST_FRAMEWORK = {
     #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     # ]
 }
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=360000),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    #'AUTH_HEADER_TYPES': ('Bearer',)
+}
+

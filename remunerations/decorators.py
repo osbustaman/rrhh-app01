@@ -73,7 +73,7 @@ def verify_token_cls(cls):
                 try:
                     token_decode = decode(encoded_token, secret, algorithms=["HS256"])
                     
-                    object_user = User.objects.get(email=token_decode['mail'])
+                    object_user = User.objects.get(id=token_decode['user_id'])
                     if object_user:
                         return super().dispatch(request, *args, **kwargs)
                     else:

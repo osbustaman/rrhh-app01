@@ -33,8 +33,9 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_HEADERS = [
     "token",
+    'content-type',
+    # other headers as needed
 ]
-
 
 CORS_ALLOW_METHODS = (
     "DELETE",

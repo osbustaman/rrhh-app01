@@ -26,15 +26,15 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
 	"http://localhost:5173"
 ]
 
 CORS_ALLOW_HEADERS = [
     "token",
+    "content-type"
 ]
-
 
 CORS_ALLOW_METHODS = (
     "DELETE",

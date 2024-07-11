@@ -31,7 +31,7 @@ class BoxesCompensation(models.Model):
         return self.bc_id
 
     def __str__(self):
-        return f"{self.bc_name}"
+        return f"{self.bc_business_name}"
 
     def save(self, *args, **kwargs):
         super(BoxesCompensation, self).save(*args, **kwargs)

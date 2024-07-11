@@ -2,7 +2,8 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 
-from applications.administrator.api.serializer import UserSerializer
+from applications.administrator.api.serializer import CustomerSerializer, UserSerializer
+from applications.security.models import Customers
 from remunerations.decorators import verify_token
 
 class ListAdminUsersView(generics.ListAPIView):
@@ -75,3 +76,27 @@ class CreateUserView(generics.CreateAPIView):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ListCustomersView(generics.ListAPIView):
+    serializer_class = CustomerSerializer
+
+    def get_queryset(self):
+        # Obtener el listado de clientes
+        queryset = Customers.objects.filter(cus_active='Y')
+        return queryset
+
+    @verify_token
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.serializer_class(queryset, many=True)
+            
+            # Incluir el nombre de la base de datos en la respuesta
+            data = {
+                'customers': serializer.data
+            }
+            return Response(data)
+        except ValueError as ex:
+            return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)

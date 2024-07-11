@@ -250,6 +250,7 @@ class Customers(TimeStampedModel):
     cus_id = models.AutoField("Key", primary_key=True)
     cus_name = models.CharField('Nombre del cliente', max_length=120)
     cus_identifier = models.CharField('Rut del cliente', max_length=20)
+    cus_email = models.CharField('Email del cliente', max_length=150, null=True, blank=True)
     cus_name_bd = models.CharField('Nombre base de datos', max_length=20, null=True, blank=True)
     cus_date_in = models.DateField("Fecha creación de la base")
     cus_date_out = models.DateField(verbose_name='Fecha termino de la base', null=True, blank=True)
@@ -262,8 +263,9 @@ class Customers(TimeStampedModel):
         "Favicon Cliente", help_text=" Formatos .jpg|.png|.gif|.jpeg", upload_to='imagen/', null=True, blank=True)
     
     cus_number_users = models.IntegerField("Cantidad usuarios", default=0, null=True, blank=True)
+    cus_representative_name = models.CharField("Nombre completo representante", max_length=150, null=True, blank=True)
     cus_representative_rut = models.CharField("Rut representante", max_length=20, null=True, blank=True)
-    cus_representative_mail = models.CharField("Rut representante", max_length=100, null=True, blank=True)
+    cus_representative_mail = models.CharField("Email representante", max_length=100, null=True, blank=True)
     cus_representative_phone = models.CharField("Teléfono representante", max_length=100, null=True, blank=True)
     cus_representative_address = models.CharField("Dirección representante", max_length=100, null=True, blank=True)
     country_id = models.ForeignKey(Country, verbose_name="Country", db_column="country_id", null=True, blank=True, on_delete=models.PROTECT)

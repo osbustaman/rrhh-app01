@@ -6,8 +6,23 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 
-from applications.security.models import Customers
+from applications.security.models import Country, Region, Commune
 
+
+class CountriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = '__all__'
+
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Region
+        fields = '__all__'
+
+class CommuneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Commune
+        fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -33,28 +48,3 @@ class UserSerializer(serializers.ModelSerializer):
         # Hashea la contraseña antes de crear el usuario
         validated_data['password'] = make_password(validated_data['password'])
         return super().create(validated_data)
-    
-
-class CustomerSerializer(serializers.ModelSerializer):
-    cus_id = serializers.CharField(
-        write_only=False, required=False, style={'input_type': 'text'}
-    )
-
-    class Meta:
-        model = Customers
-        fields = [
-            'cus_id',
-            'cus_name',
-            'cus_identifier',
-            'cus_email',
-            'cus_representative_name',
-            'cus_representative_rut',
-            'cus_representative_mail',
-            'cus_name_bd',
-            'cus_date_in',
-            'cus_date_out',
-            'cus_number_users',
-            'country_id',
-            'region_id',
-            'commune_id',
-        ]

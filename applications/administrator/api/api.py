@@ -2,9 +2,10 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 
-from applications.administrator.api.serializer import CommuneSerializer, RegionSerializer, UserSerializer, CountriesSerializer
-from applications.security.models import Country, Region, Commune
+from applications.administrator.api.serializer import CustomerSerializer, CommuneSerializer, RegionSerializer, UserSerializer, CountriesSerializer
+from applications.security.models import Country, Region, Commune, Customers
 from remunerations.decorators import verify_token, verify_token_cls
+
 
 #@verify_token_cls
 class ListCountriesView(generics.ListAPIView):
@@ -20,6 +21,32 @@ class ListRegionView(generics.ListAPIView):
 class ListCommuneView(generics.ListAPIView):
     queryset = Commune.objects.all()
     serializer_class = CommuneSerializer
+
+
+class ListCustomersView(generics.ListAPIView):
+    serializer_class = CustomerSerializer
+
+    def get_queryset(self):
+        # Obtener el listado de clientes
+        queryset = Customers.objects.filter(cus_active='Y')
+        return queryset
+
+    #@verify_token
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.serializer_class(queryset, many=True)
+            
+            # Incluir el nombre de la base de datos en la respuesta
+            data = {
+                'customers': serializer.data
+            }
+            return Response(data)
+        except ValueError as ex:
+            return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as ex:
+            return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ListAdminUsersView(generics.ListAPIView):

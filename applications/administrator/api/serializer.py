@@ -51,14 +51,9 @@ class UserSerializer(serializers.ModelSerializer):
     
     
 class CustomerSerializer(serializers.ModelSerializer):
-    cus_id = serializers.CharField(
-        write_only=False, required=False, style={'input_type': 'text'}
-    )
-
     class Meta:
         model = Customers
         fields = [
-            'cus_id',
             'cus_name',
             'cus_identifier',
             'cus_email',

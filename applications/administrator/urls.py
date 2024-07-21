@@ -1,6 +1,6 @@
 from django.urls import path
 
-from applications.administrator.api.api import CreateUserView, ListAdminUsersView, ListCommuneView, ListCountriesView, ListRegionView, ListCustomersView
+from applications.administrator.api.api import CreateUserView, ListAdminUsersView, ListCommuneView, ListCountriesView, ListRegionView, ListCustomersView, CreateCustomerView
 from applications.administrator.views import add_admin
 
 app_name = 'administrator_app'
@@ -17,4 +17,6 @@ urlpatterns = [
     path('list-commune', ListCommuneView.as_view(), name='ListCommuneView'),
 
     path('listado-clientes', ListCustomersView.as_view(), name='ListCustomersView'),
+    path('add-customers', CreateCustomerView.as_view(), name='CreateCustomerView'),
+    path('get-data-customer', CreateCustomerView.as_view(), name='CreateCustomerView'),
 ]

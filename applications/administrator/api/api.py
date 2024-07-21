@@ -7,46 +7,81 @@ from applications.security.models import Country, Region, Commune, Customers
 from remunerations.decorators import verify_token, verify_token_cls
 
 
-#@verify_token_cls
+@verify_token_cls
 class ListCountriesView(generics.ListAPIView):
     queryset = Country.objects.all()
     serializer_class = CountriesSerializer
 
-#@verify_token_cls
+@verify_token_cls
 class ListRegionView(generics.ListAPIView):
     queryset = Region.objects.all()
     serializer_class = RegionSerializer
 
-#@verify_token_cls
+@verify_token_cls
 class ListCommuneView(generics.ListAPIView):
     queryset = Commune.objects.all()
     serializer_class = CommuneSerializer
 
+@verify_token_cls
+class CreateCustomerView(generics.CreateAPIView):
+    queryset = Customers.objects.all()
+    serializer_class = CustomerSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        customer_id = serializer.instance.cus_id
+        return Response({'cus_id': customer_id}, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+@verify_token_cls
+class GetDataCustomerView(generics.RetrieveAPIView):
+    queryset = Customers.objects.all()
+    serializer_class = CustomerSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
 
 class ListCustomersView(generics.ListAPIView):
-    serializer_class = CustomerSerializer
+    queryset = Customers.objects.all()
+    # serializer_class = CustomerSerializer
 
     def get_queryset(self):
         # Obtener el listado de clientes
         queryset = Customers.objects.filter(cus_active='Y')
         return queryset
 
-    #@verify_token
+    @verify_token
     def list(self, request, *args, **kwargs):
         try:
             queryset = self.get_queryset()
-            serializer = self.serializer_class(queryset, many=True)
-            
-            # Incluir el nombre de la base de datos en la respuesta
-            data = {
-                'customers': serializer.data
-            }
-            return Response(data)
+
+            list_customers = []
+            for customer in queryset:
+                list_customers.append({
+                    'cus_id': customer.cus_id,
+                    'cus_name': customer.cus_name,
+                    'cus_identifier': customer.cus_identifier,
+                    'cus_email': customer.cus_email,
+                    'cus_representative_name': customer.cus_representative_name,
+                    'cus_representative_rut': customer.cus_representative_rut,
+                    'cus_representative_mail': customer.cus_representative_mail,
+                    'cus_name_bd': customer.cus_name_bd,
+                    'cus_date_in': customer.cus_date_in,
+                    'cus_date_out': customer.cus_date_out,
+                    'cus_number_users': customer.cus_number_users
+                })
+
+            return Response(list_customers, status=status.HTTP_200_OK)
         except ValueError as ex:
             return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
             return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ListAdminUsersView(generics.ListAPIView):

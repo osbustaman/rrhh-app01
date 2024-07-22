@@ -35,6 +35,34 @@ class CreateCustomerView(generics.CreateAPIView):
         customer_id = serializer.instance.cus_id
         return Response({'cus_id': customer_id}, status=status.HTTP_201_CREATED, headers=headers)
     
+@verify_token_cls
+class GetCustomerDataView(generics.RetrieveAPIView):
+    queryset = Customers.objects.all()
+    serializer_class = CustomerSerializer
+
+    def get_queryset(self):
+        # Obtener el listado de clientes
+        try:
+            queryset = Customers.objects.filter(cus_id=(self.kwargs['pk']), cus_active='Y').first()
+        except Customers.DoesNotExist:
+            queryset = None
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+
+        if not self.get_queryset():
+            message = {
+                'error': 'No se encontró el cliente',
+                'success': False
+            }
+
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        
+        customers_objects = self.get_queryset()
+        serializer = self.get_serializer(customers_objects)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
 
 @verify_token_cls
 class GetDataCustomerView(generics.RetrieveAPIView):

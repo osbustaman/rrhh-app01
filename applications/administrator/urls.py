@@ -9,6 +9,7 @@ from applications.administrator.api.api import (
     , ListCustomersView
     , CreateCustomerView
     , GetCustomerDataView
+    , UpdateCustomerView
 )
 from applications.administrator.views import add_admin
 
@@ -18,7 +19,7 @@ urlpatterns = [
 
     path('add/user/admin/', add_admin, name='add_admin'),
 
-    path('create-user/', CreateUserView.as_view(), name='create_user'),
+    path('create-user/<int:pk>/', CreateUserView.as_view(), name='create_user'),
     path('list-admin-users/', ListAdminUsersView.as_view(), name='list_admin_users'),
 
     path('list-countries', ListCountriesView.as_view(), name='ListCountriesView'),
@@ -30,4 +31,5 @@ urlpatterns = [
     path('get-data-customer', CreateCustomerView.as_view(), name='CreateCustomerView'),
 
     path('get-data-customer/<int:pk>/', GetCustomerDataView.as_view(), name='CreateCustomerView'),
+    path('update-data-customer/<int:pk>/', UpdateCustomerView.as_view(), name='UpdateCustomerView'),
 ]

@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 
 from applications.security.models import Country, Region, Commune, Customers
+from remunerations.utils import validarRut
 
 
 class CountriesSerializer(serializers.ModelSerializer):
@@ -51,6 +52,20 @@ class UserSerializer(serializers.ModelSerializer):
     
     
 class CustomerSerializer(serializers.ModelSerializer):
+
+    cus_representative_rut = serializers.CharField(max_length=10)
+    cus_identifier = serializers.CharField(max_length=10)
+
+    def validate_cus_identifier(self, value):
+        if not validarRut(value):
+            raise serializers.ValidationError("RUT del cliente no es válido")
+        return value
+    
+    def validate_cus_representative_rut(self, value):
+        if not validarRut(value):
+            raise serializers.ValidationError("RUT del representante no es válido")
+        return value
+
     class Meta:
         model = Customers
         fields = [

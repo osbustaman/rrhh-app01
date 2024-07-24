@@ -34,6 +34,19 @@ class CreateCustomerView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         customer_id = serializer.instance.cus_id
         return Response({'cus_id': customer_id}, status=status.HTTP_201_CREATED, headers=headers)
+
+@verify_token_cls
+class UpdateCustomerView(generics.UpdateAPIView):
+    queryset = Customers.objects.all()
+    serializer_class = CustomerSerializer
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     
 @verify_token_cls
 class GetCustomerDataView(generics.RetrieveAPIView):

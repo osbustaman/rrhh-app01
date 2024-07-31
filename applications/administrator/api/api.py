@@ -47,7 +47,6 @@ class UpdateCustomerView(generics.UpdateAPIView):
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
 @verify_token_cls
 class GetCustomerDataView(generics.RetrieveAPIView):
     queryset = Customers.objects.all()
@@ -74,8 +73,6 @@ class GetCustomerDataView(generics.RetrieveAPIView):
         customers_objects = self.get_queryset()
         serializer = self.get_serializer(customers_objects)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
 
 @verify_token_cls
 class GetDataCustomerView(generics.RetrieveAPIView):
@@ -86,7 +83,6 @@ class GetDataCustomerView(generics.RetrieveAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
 
 class ListCustomersView(generics.ListAPIView):
     queryset = Customers.objects.all()
@@ -124,13 +120,14 @@ class ListCustomersView(generics.ListAPIView):
         except Exception as ex:
             return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
 
-
+@verify_token_cls
 class ListAdminUsersView(generics.ListAPIView):
     serializer_class = UserSerializer
 
-    def get_queryset(self):
+    def get_queryset(self, pk):
         # Obtener el nombre de la base de datos de la solicitud
-        db_name = self.request.query_params.get('database_name')
+        instance_customers = Customers.objects.filter(cus_id=pk).first()
+        db_name = instance_customers.cus_name_bd
         
         # Validar que se proporcione el nombre de la base de datos
         if not db_name:
@@ -143,11 +140,12 @@ class ListAdminUsersView(generics.ListAPIView):
     @verify_token
     def list(self, request, *args, **kwargs):
         try:
-            queryset = self.get_queryset()
+            queryset = self.get_queryset(kwargs['pk'])
             serializer = self.serializer_class(queryset, many=True)
             
             # Obtener el nombre de la base de datos de la solicitud
-            db_name = request.query_params.get('database_name')
+            instance_customers = Customers.objects.filter(cus_id=kwargs['pk']).first()
+            db_name = instance_customers.cus_name_bd
             
             # Incluir el nombre de la base de datos en la respuesta
             data = {
@@ -160,23 +158,16 @@ class ListAdminUsersView(generics.ListAPIView):
         except Exception as ex:
             return Response({"error": str(ex)}, status=status.HTTP_400_BAD_REQUEST)
 
-
+@verify_token_cls
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.none()  # Utiliza un queryset vacío porque no necesitamos ninguno
     serializer_class = UserSerializer
 
-    @verify_token
     def create(self, request, *args, **kwargs):
-        # Obtener el nombre de la base de datos de la solicitud
-        db_name = request.data.get('database_name')
-        
-        # Validar que se proporcione el nombre de la base de datos
-        if not db_name:
-            return Response({"error": "Se requiere el nombre de la base de datos"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Cambiar la base de datos para el modelo de usuario
-        User.objects.using(db_name)
-        
+
+        instance_customers = Customers.objects.filter(cus_id=kwargs['pk']).first()
+        db_name = instance_customers.cus_name_bd
+
         # Llama al método create del serializer para crear un nuevo usuario
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -195,3 +186,5 @@ class CreateUserView(generics.CreateAPIView):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    

@@ -20,7 +20,7 @@ urlpatterns = [
     path('add/user/admin/', add_admin, name='add_admin'),
 
     path('create-user/<int:pk>/', CreateUserView.as_view(), name='create_user'),
-    path('list-admin-users/', ListAdminUsersView.as_view(), name='list_admin_users'),
+    path('list-admin-users/<int:pk>/', ListAdminUsersView.as_view(), name='list_admin_users'),
 
     path('list-countries', ListCountriesView.as_view(), name='ListCountriesView'),
     path('list-region', ListRegionView.as_view(), name='ListRegionView'),

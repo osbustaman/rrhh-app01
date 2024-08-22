@@ -233,7 +233,6 @@ class Subsidiary(models.Model):
         ordering = ['sub_id']
 
 
-
 class Area(TimeStampedModel):
 
     OPTIONS = (

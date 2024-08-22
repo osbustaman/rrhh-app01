@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from applications.company.models import BoxesCompensation, MutualSecurity, Company, Subsidiary
+from applications.company.models import Area, BoxesCompensation, Department, MutualSecurity, Company, Position, Subsidiary
 
 # Register your models here.
 class SubsidiaryAdmin(admin.ModelAdmin):
@@ -30,8 +30,30 @@ class BoxesCompensationAdmin(admin.ModelAdmin):
     search_fields = ['bc_rut', 'bc_fantasy_name', 'bc_business_name']
     list_per_page = 10
 
+class AreaAdmin(admin.ModelAdmin):
+    list_display = ['ar_id', 'ar_name', 'company', 'ar_active']
+    list_filter = ['ar_name', 'company__com_name_company']
+    search_fields = ['ar_name']
+    list_per_page = 10
+
+
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ['dep_id', 'dep_name', 'area', 'dep_active']
+    list_filter = ['dep_name']
+    search_fields = ['dep_name']
+    list_per_page = 10
+
+
+class PositionAdmin(admin.ModelAdmin):
+    list_display = ['pos_id', 'pos_name_position', 'departament', 'pos_activa']
+    list_filter = ['pos_name_position']
+    search_fields = ['pos_name_position']
+    list_per_page = 10
 
 admin.site.register(Subsidiary, SubsidiaryAdmin)
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(MutualSecurity, MutualSecurityAdmin)
 admin.site.register(BoxesCompensation, BoxesCompensationAdmin)
+admin.site.register(Area, AreaAdmin)
+admin.site.register(Department, DepartmentAdmin)
+admin.site.register(Position, PositionAdmin)

@@ -1,4 +1,5 @@
 from django.db import models
+from model_utils.models import TimeStampedModel
 
 from applications.security.models import Country, Region, Commune
 
@@ -71,7 +72,7 @@ class MutualSecurity(models.Model):
         ordering = ['ms_id']
 
 
-class Company(models.Model):
+class Company(TimeStampedModel):
     OPTIONS = (
         ('Y', 'SI'),
         ('N', 'NO'),
@@ -232,7 +233,67 @@ class Subsidiary(models.Model):
         ordering = ['sub_id']
 
 
-class Position(models.Model):
+
+class Area(TimeStampedModel):
+
+    OPTIONS = (
+        ('Y', 'SI'),
+        ('N', 'NO'),
+    )
+
+    ar_id = models.AutoField("Key", primary_key=True)
+    ar_name = models.CharField("Nombre Área", max_length=255)
+    company = models.ForeignKey(Company, verbose_name="Company",
+                                db_column="pos_company_id", on_delete=models.PROTECT)
+    ar_active = models.CharField(
+        "Área activa", max_length=1, choices=OPTIONS, default="S")
+    
+    def __int__(self):
+        return self.ar_id
+
+    def __str__(self):
+        return f"{self.ar_name}"
+
+    def save(self, *args, **kwargs):
+        super(Area, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Listado de áreas"
+        db_table = 'areas'
+        ordering = ['ar_id']
+
+
+class Department(TimeStampedModel):
+
+    OPTIONS = (
+        ('Y', 'SI'),
+        ('N', 'NO'),
+    )
+
+    dep_id = models.AutoField("Key", primary_key=True)
+    dep_name = models.CharField("Nombre departamento", max_length=255)
+    area = models.ForeignKey(Area, verbose_name="Area",
+                                db_column="dep_area_id", on_delete=models.PROTECT)
+    dep_description = models.TextField("Descripcion del departamento", null=True, blank=True)
+    dep_active = models.CharField(
+        "departamento activo", max_length=1, choices=OPTIONS, default="S")
+    
+    def __int__(self):
+        return self.dep_id
+
+    def __str__(self):
+        return f"{self.dep_name}"
+
+    def save(self, *args, **kwargs):
+        super(Department, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Listado de departamentos"
+        db_table = 'department'
+        ordering = ['dep_id']
+
+
+class Position(TimeStampedModel):
 
     OPTIONS = (
         ('Y', 'SI'),
@@ -241,8 +302,9 @@ class Position(models.Model):
 
     pos_id = models.AutoField("Key", primary_key=True)
     pos_name_position = models.CharField("Nombre cargo", max_length=255)
-    company = models.ForeignKey(Company, verbose_name="Company",
-                                db_column="pos_company_id", on_delete=models.PROTECT)
+    departament = models.ForeignKey(Department, verbose_name="Department",
+                                db_column="pos_department_id", on_delete=models.PROTECT)
+    post_description = models.TextField("Descripcion del cargo", null=True, blank=True)
     pos_activa = models.CharField(
         "Cargo activa", max_length=1, choices=OPTIONS, default="S")
     

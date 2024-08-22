@@ -322,7 +322,6 @@ class Customers(TimeStampedModel):
 
         return True
 
-
     def __create_migrate(self):
         try:
             # Configurar el entorno de Django
@@ -356,7 +355,6 @@ class Customers(TimeStampedModel):
         except Exception as e:
             # Manejar cualquier otro error desconocido
             return f'Error desconocido: {e}'
-
 
     def __populate_customer_base_country(self):
         try:
@@ -963,7 +961,6 @@ class Customers(TimeStampedModel):
                     ban_code=bank_code,
                 )
 
-    
     def __create_health_institution(self):
 
         from applications.company.models import Health
@@ -1028,7 +1025,6 @@ class Customers(TimeStampedModel):
                 Health.objects.using(self.cus_name_bd).create(
                     **health_institution
                 )
-
 
     def __create_mutual_security(self):
 

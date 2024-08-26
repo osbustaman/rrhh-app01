@@ -27,9 +27,16 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = [
-	"http://localhost:5173"
+# CORS_ALLOWED_ORIGINS = [
+# 	"http://alexis.localhost:5173",
+#     "http://localhost:5173",
+#     "http://localhost:5174"
+# ]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https?://(\w+\.)?localhost(:\d+)?$",
 ]
+
 
 CORS_ALLOW_HEADERS = [
     "token",

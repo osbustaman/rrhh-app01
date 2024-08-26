@@ -26,8 +26,6 @@ def validate_rut(rut):
         dv_calculado = str(dv_calculado)
     return dv == dv_calculado
 
-
-
 def validate_mail(correo):
     # Patrón de expresión regular para validar un correo electrónico
     patron = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -72,6 +70,55 @@ class CompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = '__all__'
 
+
+class PostCompanySerializer(serializers.ModelSerializer):
+    def validate_com_rut(self, value):
+        if not validate_rut(value):
+            raise serializers.ValidationError("El Rut ingresado no es válido")
+        return value
+
+    def validate_com_rut_representative(self, value):
+        if not validate_rut(value):
+            raise serializers.ValidationError("El Rut del representante ingresado no es válido")
+        return value
+
+    def validate_com_rut_counter(self, value):
+        if not validate_rut(value):
+            raise serializers.ValidationError("El Rut del contador ingresado no es válido")
+        return value
+
+    def validate_com_mail_one(self, value):
+        if not validate_mail(value):
+            raise serializers.ValidationError("El correo electrónico 1 ingresado no es válido")
+        return value
+
+    def validate_com_mail_two(self, value):
+        if value and not validate_mail(value):
+            raise serializers.ValidationError("El correo electrónico 2 ingresado no es válido")
+        return value
+
+    class Meta:
+        model = Company
+        fields = [
+            'com_rut'
+            , 'com_name_company'
+            , 'com_name_counter'
+            , 'com_is_holding'
+            , 'com_id_parent_company'
+            , 'com_representative_name'
+            , 'com_rut_representative'
+            , 'com_is_state'
+            , 'com_social_reason'
+            , 'com_twist_company'
+            , 'com_address'
+            , 'commune'
+            , 'regions'
+            , 'countries'
+            , 'com_phone_one'
+            , 'com_phone_two'
+            , 'com_mail_one'
+            , 'com_mail_two'
+        ]
 
 class BoxesCompensationSerializer(serializers.ModelSerializer):
     class Meta:

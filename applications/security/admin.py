@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.utils.html import format_html
-from .models import Customers, ListItems, ListSubItems, Menu, MenuItems
+from .models import Commune, Country, Customers, ListItems, ListSubItems, Menu, MenuItems, Region
 
 
 # Register your models here.
@@ -54,3 +54,8 @@ admin.site.register(ListItems, ListItemsAdmin)
 admin.site.register(MenuItems, MenuItemsAdmin)
 admin.site.register(ListSubItems, ListSubItemsAdmin)
 admin.site.register(Customers, CustomersAdmin)
+
+
+admin.site.register(Country)
+admin.site.register(Region)
+admin.site.register(Commune)

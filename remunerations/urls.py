@@ -22,6 +22,7 @@ from rest_framework_simplejwt.views import (
     TokenBlacklistView
 )
 
+from applications.employee.api.api import LoginUser, LogoutUser
 from applications.security.api.api_login import Login, Logout
 
 urlpatterns = [
@@ -31,9 +32,17 @@ urlpatterns = [
     path('login-drf', Login.as_view(), name='login-drf'),
     path('logout-drf', Logout.as_view(), name='logout-drf'),
 
+    # Ruta para iniciar sesión, utiliza la clase Login que hemos definido
+    path('login', LoginUser.as_view(), name='login'),
+
+    # Ruta para cerrar sesión, utiliza la clase Logout que hemos definido
+    path('logout', LogoutUser.as_view(), name='logout'),
+
+
     path('', include('applications.security.urls')),
     path('', include('applications.administrator.urls')),
     path('', include('applications.company.urls')),
+    path('', include('applications.employee.urls')),
 
 
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

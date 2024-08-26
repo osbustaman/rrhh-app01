@@ -1,9 +1,4 @@
 
-import datetime
-
-from jwt import encode, decode, ExpiredSignatureError, InvalidSignatureError
-from decouple import config
-
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework import generics, status
@@ -12,13 +7,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny
 
 from applications.security.api.serializer import CustomTokenObtainPairSerializer, CustomUserSerializer
 from applications.security.decorators import verify_token
 from remunerations.decorators import verify_token_cls
-from remunerations.utils import decode_token, revoke_token, write_token
+from remunerations.utils import decode_token, revoke_token
 
 class Login(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

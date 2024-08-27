@@ -31,6 +31,43 @@ class MutualSecurityRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView)
     serializer_class = MutualSecuritySerializer
 
 
+
+@verify_token_cls
+class GetCompany(generics.RetrieveAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            company = self.get_object()
+            serializer = CompanySerializer(company)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Error al obtener la empresa'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class EditCompany(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
+    def put(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = CompanySerializer(instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                company = serializer.save()
+                response = {
+                    'com_id': company.com_id,
+                    'message': 'Empresa creada correctamente'
+                }
+                return Response(response, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': 'Error al actualizar la empresa'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 @verify_token_cls
 class PostCompany(generics.CreateAPIView):
     queryset = Company.objects.all()
@@ -38,10 +75,23 @@ class PostCompany(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
+            com_rut = request.data.get('com_rut')
+            if Company.objects.filter(com_rut=com_rut).exists():
+                return Response({'message': 'La empresa ya existe'}, status=status.HTTP_400_BAD_REQUEST)
+            
             serializer = PostCompanySerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save()
-                return Response({'message': 'Empresa creada correctamente'}, status=status.HTTP_201_CREATED)
+                company = serializer.save()
+                
+                if request.data['com_id_parent_company']:
+                    Company.objects.filter(com_id=company.com_id).update(com_id_parent_company=company)
+
+                response = {
+                    'com_id': company.com_id,
+                    'message': 'Empresa creada correctamente'
+                }
+
+                return Response(response, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:

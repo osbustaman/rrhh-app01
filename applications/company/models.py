@@ -72,6 +72,10 @@ class MutualSecurity(models.Model):
         ordering = ['ms_id']
 
 
+from django.db import models
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
+
 class Company(TimeStampedModel):
     OPTIONS = (
         ('Y', 'SI'),
@@ -87,14 +91,11 @@ class Company(TimeStampedModel):
         (5, 'Sociedad Anónima de Garantía Recíproca (S.A.G.R.)'),
     )
 
-
     com_id = models.AutoField("Key", primary_key=True)
     com_rut = models.CharField("Rut", max_length=25)
-    com_representative_name = models.CharField(
-        "Nombre representante", max_length=255, null=True, blank=True)
+    com_representative_name = models.CharField("Nombre representante", max_length=255, null=True, blank=True)
     com_rut_representative = models.CharField("Rut representante", max_length=25)
-    com_is_state = models.CharField(
-        "Es estatal", max_length=1, choices=OPTIONS, default="N")
+    com_is_state = models.CharField("Es estatal", max_length=1, choices=OPTIONS, default="N")
     com_name_company = models.CharField("Nombre empresa", max_length=150)
     com_social_reason = models.IntegerField("Razón social", choices=BUSSINESS_SOCIAL_REASON)
     com_twist_company = models.CharField("Giro empresa", max_length=150)
@@ -115,7 +116,7 @@ class Company(TimeStampedModel):
     com_id_parent_company = models.ForeignKey('self', db_column="com_id_parent_company", null=True, blank=True, default=None, on_delete=models.PROTECT)
     com_active = models.CharField("Empresa activa", max_length=1, choices=OPTIONS, default="S")
     com_rut_counter = models.CharField("Rut contador", max_length=12, null=True, blank=True)
-    com_name_counter = models.CharField("Razón social", max_length=150, null=True, blank=True)
+    com_name_counter = models.CharField("Nombre Contador", max_length=150, null=True, blank=True)
     com_company_image = models.CharField("Logo Empresa", max_length=255, null=True, blank=True)
     mutual_security = models.ForeignKey(MutualSecurity, verbose_name="MutualSecurity", db_column="com_mutualsecurity_id", on_delete=models.PROTECT, null=True, blank=True)
     boxes_compensation = models.ForeignKey(BoxesCompensation, verbose_name="BoxesCompensation", db_column="com_boxes_compensation_id", on_delete=models.PROTECT, null=True, blank=True)
@@ -124,35 +125,34 @@ class Company(TimeStampedModel):
         return self.com_id
 
     def __str__(self):
-        return f"{ self.com_id } - { self.com_name_company }"
+        return f"{self.com_id} - {self.com_name_company}"
     
-    def __get_latitude_longitude(address):
+    def __get_latitude_longitude(self):
         try:
             # Crear un objeto geolocator utilizando el proveedor Nominatim
             geolocator = Nominatim(user_agent="Nominatim", timeout=20)
 
             # Obtener la ubicación (latitud, longitud) a partir de la dirección
-            location = geolocator.geocode(address)
+            location = geolocator.geocode(self.com_address)
 
             if location:
                 latitude = location.latitude
                 longitude = location.longitude
                 return latitude, longitude
             else:
-                print(f"No se pudo encontrar la ubicación para la dirección: {address}")
+                print(f"No se pudo encontrar la ubicación para la dirección: {self.com_address}")
                 return None, None
         except GeocoderTimedOut:
             print("El servicio de geocodificación excedió el tiempo de espera.")
             return None, None
         except Exception as e:
-            print(f"Error al obtener la ubicación para la dirección {address}: {e}")
+            print(f"Error al obtener la ubicación para la dirección {self.com_address}: {e}")
             return None, None
         
     get_latitude_longitude = property(__get_latitude_longitude)
 
     def save(self, *args, **kwargs):
-
-        latitude, longitude = self.__get_latitude_longitude
+        latitude, longitude = self.__get_latitude_longitude()
         self.com_latitude = latitude
         self.com_longitude = longitude
 
@@ -162,7 +162,6 @@ class Company(TimeStampedModel):
         verbose_name_plural = "Empresas"
         db_table = 'company'
         ordering = ['com_id']
-
 
 class Subsidiary(models.Model):
 

@@ -72,6 +72,10 @@ class CompanySerializer(serializers.ModelSerializer):
 
 
 class PostCompanySerializer(serializers.ModelSerializer):
+
+    com_id_parent_company = serializers.CharField(max_length=1, required=False, default=None)
+
+
     def validate_com_rut(self, value):
         if not validate_rut(value):
             raise serializers.ValidationError("El Rut ingresado no es válido")
@@ -96,6 +100,24 @@ class PostCompanySerializer(serializers.ModelSerializer):
         if value and not validate_mail(value):
             raise serializers.ValidationError("El correo electrónico 2 ingresado no es válido")
         return value
+    
+    def to_internal_value(self, data):
+        # Lista de campos que necesitan ser convertidos de string a int
+        fields_to_convert = ['commune', 'region', 'country']
+        
+        for field in fields_to_convert:
+            if field in data:
+                try:
+                    data[field] = int(data[field])
+                except ValueError:
+                    raise serializers.ValidationError({field: f"Debe ser un número entero válido."})
+        
+        return super().to_internal_value(data)
+    
+    def create(self, validated_data):
+        # Asegurarse de que com_id_parent_company sea siempre null
+        validated_data['com_id_parent_company'] = None
+        return super().create(validated_data)
 
     class Meta:
         model = Company
@@ -112,18 +134,20 @@ class PostCompanySerializer(serializers.ModelSerializer):
             , 'com_twist_company'
             , 'com_address'
             , 'commune'
-            , 'regions'
-            , 'countries'
+            , 'region'
+            , 'country'
             , 'com_phone_one'
             , 'com_phone_two'
             , 'com_mail_one'
             , 'com_mail_two'
         ]
 
+
 class BoxesCompensationSerializer(serializers.ModelSerializer):
     class Meta:
         model = BoxesCompensation
         fields = '__all__'
+
 
 class MutualSecuritySerializer(serializers.ModelSerializer):
     class Meta:

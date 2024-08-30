@@ -124,7 +124,6 @@ class PostCompanySerializer(serializers.ModelSerializer):
         fields = [
             'com_rut'
             , 'com_name_company'
-            , 'com_name_counter'
             , 'com_is_holding'
             , 'com_id_parent_company'
             , 'com_representative_name'

@@ -95,7 +95,7 @@ class PostCompany(generics.CreateAPIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'message': 'Error al crear la empresa'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': f"Error al crear la empresa {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
 @verify_token_cls
 class CompanyListCreate(generics.ListCreateAPIView):

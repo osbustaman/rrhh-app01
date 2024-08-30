@@ -4,7 +4,7 @@ from rest_framework import serializers
 from applications.company.models import BoxesCompensation, Company, MutualSecurity
 
 def validate_rut(rut):
-    rut = rut.replace(".", "").replace("-", "")  # Eliminar puntos y guiones
+    rut = (rut.replace(".", "").replace("-", "")).upper()  # Eliminar puntos y guiones
     if not re.match(r'^\d{1,8}[0-9K]$', rut):  # Verificar formato
         return False
     rut_sin_dv = rut[:-1]
@@ -86,10 +86,6 @@ class PostCompanySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("El Rut del representante ingresado no es válido")
         return value
 
-    def validate_com_rut_counter(self, value):
-        if not validate_rut(value):
-            raise serializers.ValidationError("El Rut del contador ingresado no es válido")
-        return value
 
     def validate_com_mail_one(self, value):
         if not validate_mail(value):

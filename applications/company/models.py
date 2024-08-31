@@ -163,6 +163,7 @@ class Company(TimeStampedModel):
         db_table = 'company'
         ordering = ['com_id']
 
+
 class Subsidiary(models.Model):
 
     OPTIONS = (
@@ -174,6 +175,8 @@ class Subsidiary(models.Model):
     sub_name = models.CharField(
         "Descripción de la unidad", max_length=255, null=True, blank=True)
     company = models.ForeignKey(Company, verbose_name='Company', db_column='sub_company_id', on_delete=models.PROTECT)
+    sub_mail = models.CharField("Correo electrónico", max_length=255, null=True, blank=True)
+    sub_phone = models.CharField("Teléfono", max_length=255, null=True, blank=True)
     sub_address = models.CharField(
         "Direccion de la unidad", max_length=255, default='')
     country = models.ForeignKey(Country, verbose_name="Country",

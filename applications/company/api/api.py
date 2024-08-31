@@ -2,11 +2,35 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from applications.company.api.serializer import BoxesCompensationSerializer, CompanySerializer, MutualSecuritySerializer, PostCompanySerializer
-from applications.company.models import BoxesCompensation, Company, MutualSecurity
+from applications.company.api.serializer import BoxesCompensationSerializer, CompanySerializer, MutualSecuritySerializer, PostCompanySerializer, SubsidiarySerializer
+from applications.company.models import BoxesCompensation, Company, MutualSecurity, Subsidiary
 from remunerations.decorators import verify_token_cls
 
 
+@verify_token_cls
+class CreateSubsidiary(generics.CreateAPIView):
+    queryset = Subsidiary.objects.all()
+    serializer_class = SubsidiarySerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+
+            com_id = kwargs.get('pk')
+            
+            print(request.data)
+
+            serializer = SubsidiarySerializer(data=request.data)
+            if serializer.is_valid():
+                subsidiary = serializer.save()
+                response = {
+                    'sub_id': subsidiary.sub_id,
+                    'message': 'Sucursal creada correctamente'
+                }
+                return Response(response, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': f"Error al crear la sucursal {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @verify_token_cls
@@ -14,11 +38,12 @@ class BoxesCompensationListCreate(generics.ListCreateAPIView):
     queryset = BoxesCompensation.objects.all()
     serializer_class = BoxesCompensationSerializer
 
-#region BoxesCompensationListCreate
+
 @verify_token_cls
 class BoxesCompensationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = BoxesCompensation.objects.all()
     serializer_class = BoxesCompensationSerializer
+
 
 @verify_token_cls
 class MutualSecurityListCreate(generics.ListCreateAPIView):
@@ -29,7 +54,6 @@ class MutualSecurityListCreate(generics.ListCreateAPIView):
 class MutualSecurityRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = MutualSecurity.objects.all()
     serializer_class = MutualSecuritySerializer
-
 
 
 @verify_token_cls
@@ -97,10 +121,12 @@ class PostCompany(generics.CreateAPIView):
         except Exception as e:
             return Response({'message': f"Error al crear la empresa {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @verify_token_cls
 class CompanyListCreate(generics.ListCreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+
 
 @verify_token_cls
 class CompanyRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):

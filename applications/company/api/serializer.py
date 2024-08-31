@@ -1,7 +1,7 @@
 import re
 from rest_framework import serializers
 
-from applications.company.models import BoxesCompensation, Company, MutualSecurity
+from applications.company.models import BoxesCompensation, Company, MutualSecurity, Subsidiary
 
 def validate_rut(rut):
     rut = (rut.replace(".", "").replace("-", "")).upper()  # Eliminar puntos y guiones
@@ -26,6 +26,7 @@ def validate_rut(rut):
         dv_calculado = str(dv_calculado)
     return dv == dv_calculado
 
+
 def validate_mail(correo):
     # Patrón de expresión regular para validar un correo electrónico
     patron = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -38,6 +39,7 @@ def validate_mail(correo):
         return True
     else:
         return False
+
 
 class CompanySerializer(serializers.ModelSerializer):
     def validate_com_rut(self, value):
@@ -148,3 +150,18 @@ class MutualSecuritySerializer(serializers.ModelSerializer):
     class Meta:
         model = MutualSecurity
         fields = '__all__'
+
+
+class SubsidiarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subsidiary
+        fields = [
+            'sub_name'
+            , 'sub_mail'
+            , 'sub_phone'
+            , 'sub_address'
+            , 'commune'
+            , 'region'
+            , 'country'
+            , 'sub_matrixhouse'
+        ]

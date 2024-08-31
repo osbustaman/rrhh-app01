@@ -3,6 +3,7 @@ from django.urls import path
 from applications.company.api.api import (
     BoxesCompensationListCreate, 
     BoxesCompensationRetrieveUpdateDestroy,
+    CreateSubsidiary,
     EditCompany,
     GetCompany,
     ListSocialReazon, 
@@ -24,6 +25,8 @@ urlpatterns = [
     path('edit-company/<int:pk>/', EditCompany.as_view(), name='edit-company'),
     path('view-company/<int:pk>/', GetCompany.as_view(), name='view-company'),
     
+    path('create-branch-office/<int:pk>/', CreateSubsidiary.as_view(), name='create-branch-office'),
+
     path('list-reason-social', ListSocialReazon.as_view(), name='list-reason-social'),
     
 ]

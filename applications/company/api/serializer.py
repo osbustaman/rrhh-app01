@@ -190,3 +190,15 @@ class CenterCostSerializer(serializers.ModelSerializer):
             'company',
             'cencost_name'
         ]
+
+
+class ListCenterCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CenterCost
+        fields = '__all__'
+
+
+class ListCenterCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CenterCost
+        fields = '__all__'

@@ -3,7 +3,6 @@ from model_utils.models import TimeStampedModel
 
 from applications.security.models import Country, Region, Commune
 
-
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 
@@ -71,10 +70,6 @@ class MutualSecurity(models.Model):
         db_table = "mutual_security"
         ordering = ['ms_id']
 
-
-from django.db import models
-from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut
 
 class Company(TimeStampedModel):
     OPTIONS = (

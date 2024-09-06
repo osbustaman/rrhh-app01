@@ -2,9 +2,97 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from applications.company.api.serializer import BoxesCompensationSerializer, CenterCostSerializer, CompanySerializer, GetSubsidiarySerializer, MutualSecuritySerializer, PostCompanySerializer, SubsidiarySerializer
-from applications.company.models import BoxesCompensation, CenterCost, Company, MutualSecurity, Subsidiary
+from applications.company.api.serializer import (
+    BoxesCompensationSerializer
+    , CenterCostSerializer
+    , CompanySerializer
+    , GetSubsidiarySerializer
+    , ListCenterCostSerializer
+    , MutualSecuritySerializer
+    , PostCompanySerializer
+    , SubsidiarySerializer
+)
+from applications.company.models import (
+    BoxesCompensation
+    , CenterCost
+    , Company
+    , MutualSecurity
+    , Subsidiary
+)
 from remunerations.decorators import verify_token_cls
+
+
+
+@verify_token_cls
+class CreateAssociatedEntities(generics.CreateAPIView):
+
+    def put(self, request, *args, **kwargs):
+        try:
+            data = request.data
+
+            object_company = Company.objects.filter(com_id=kwargs.get('pk')).first()
+            object_company.mutual_security = MutualSecurity.objects.filter(ms_id=int(data['mutual_security'])).first()
+            object_company.boxes_compensation = BoxesCompensation.objects.filter(bc_id=int(data['boxes_compensation'])).first()
+            object_company.save()
+
+            return Response({'message': 'Success'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Error al crear el centro de costo'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class ListCenterCost(generics.ListCreateAPIView):
+    queryset = CenterCost.objects.all()
+    serializer_class = ListCenterCostSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'))
+
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = ListCenterCostSerializer(queryset, many=True)
+            data = serializer.data
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': f'Error al obtener las sucursales: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class EditCenterCost(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CenterCost.objects.all()
+    serializer_class = CenterCostSerializer
+
+    def put(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = CenterCostSerializer(instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                center_cost = serializer.save()
+                response = {
+                    'cencost_id': center_cost.cencost_id,
+                    'message': 'Centro de costo actualizado con éxito'
+                }
+                return Response(response, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': f'Error al actualizar el centro de costo: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class GetCreateCenterCost(generics.RetrieveAPIView):
+    queryset = CenterCost.objects.all()
+    serializer_class = CenterCostSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            center_cost = self.get_object()
+            serializer = CenterCostSerializer(center_cost)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Error al obtener los datos del centro de costo'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @verify_token_cls
@@ -58,7 +146,6 @@ class ListSubsidiary(generics.ListCreateAPIView):
     def get_queryset(self):
         return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'))
 
-
     def get(self, request, *args, **kwargs):
         try:
             queryset = self.get_queryset()
@@ -107,11 +194,13 @@ class CreateSubsidiary(generics.CreateAPIView):
                 if Subsidiary.objects.filter(sub_name=sub_name, sub_address=sub_address).exists():
                     return Response({'message': 'La sucursal ya existe.'}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Crear la nueva sucursal si no existe
-                subsidiary = serializer.save()
-
+                # Obtener la compañía
                 obj_company = Company.objects.filter(com_id=com_id).first()
-                Subsidiary.objects.filter(sub_id=subsidiary.sub_id).update(company=obj_company)
+                if not obj_company:
+                    return Response({'message': 'La compañía no existe.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                # Crear la nueva sucursal con la compañía
+                subsidiary = serializer.save(company=obj_company)
 
                 response = {
                     'sub_id': subsidiary.sub_id,
@@ -140,6 +229,7 @@ class BoxesCompensationRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIVi
 class MutualSecurityListCreate(generics.ListCreateAPIView):
     queryset = MutualSecurity.objects.all()
     serializer_class = MutualSecuritySerializer
+
 
 @verify_token_cls
 class MutualSecurityRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):

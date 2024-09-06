@@ -2,9 +2,90 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from applications.company.api.serializer import BoxesCompensationSerializer, CompanySerializer, MutualSecuritySerializer, PostCompanySerializer, SubsidiarySerializer
-from applications.company.models import BoxesCompensation, Company, MutualSecurity, Subsidiary
+from applications.company.api.serializer import BoxesCompensationSerializer, CenterCostSerializer, CompanySerializer, GetSubsidiarySerializer, MutualSecuritySerializer, PostCompanySerializer, SubsidiarySerializer
+from applications.company.models import BoxesCompensation, CenterCost, Company, MutualSecurity, Subsidiary
 from remunerations.decorators import verify_token_cls
+
+
+@verify_token_cls
+class CreateCenterCost(generics.CreateAPIView):
+    queryset = CenterCost.objects.all()
+    serializer_class = CenterCostSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = CenterCostSerializer(data=request.data)
+            if serializer.is_valid():
+                center_cost = serializer.save()
+                response = {
+                    'cencost_id': center_cost.cencost_id,
+                    'message': 'Centro de costo creado correctamente'
+                }
+                return Response(response, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': 'Error al crear el centro de costo'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class EditSubsidiary(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Subsidiary.objects.all()
+    serializer_class = SubsidiarySerializer
+
+    def put(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = SubsidiarySerializer(instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                subsidiary = serializer.save()
+                response = {
+                    'com_id': subsidiary.sub_id,
+                    'message': 'Sucursal actualizada con éxito'
+                }
+                return Response(response, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': f'Error al actualizar la empresa: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class ListSubsidiary(generics.ListCreateAPIView):
+    queryset = Subsidiary.objects.all()
+    serializer_class = GetSubsidiarySerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'))
+
+
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = GetSubsidiarySerializer(queryset, many=True)
+            data = serializer.data
+
+            for index, i in enumerate(queryset):
+                data[index]['commune_name'] = i.commune.com_name
+                data[index]['region_name'] = i.region.re_name
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': f'Error al obtener las sucursales: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class GetSubsidiary(generics.RetrieveAPIView):
+    queryset = Subsidiary.objects.all()
+    serializer_class = SubsidiarySerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            subsidiary = self.get_object()
+            serializer = SubsidiarySerializer(subsidiary)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Error al obtener la sucursal'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @verify_token_cls
@@ -14,14 +95,24 @@ class CreateSubsidiary(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-
             com_id = kwargs.get('pk')
-            
-            print(request.data)
 
+            # Obtener los datos de la solicitud
             serializer = SubsidiarySerializer(data=request.data)
             if serializer.is_valid():
+                sub_name = serializer.validated_data.get('sub_name')
+                sub_address = serializer.validated_data.get('sub_address')
+
+                # Comprobar si ya existe una sucursal con el mismo nombre y dirección
+                if Subsidiary.objects.filter(sub_name=sub_name, sub_address=sub_address).exists():
+                    return Response({'message': 'La sucursal ya existe.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                # Crear la nueva sucursal si no existe
                 subsidiary = serializer.save()
+
+                obj_company = Company.objects.filter(com_id=com_id).first()
+                Subsidiary.objects.filter(sub_id=subsidiary.sub_id).update(company=obj_company)
+
                 response = {
                     'sub_id': subsidiary.sub_id,
                     'message': 'Sucursal creada correctamente'
@@ -30,7 +121,7 @@ class CreateSubsidiary(generics.CreateAPIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'message': f"Error al crear la sucursal {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': f"Error al crear la sucursal: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @verify_token_cls

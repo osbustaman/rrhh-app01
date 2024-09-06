@@ -1,7 +1,8 @@
 import re
 from rest_framework import serializers
 
-from applications.company.models import BoxesCompensation, Company, MutualSecurity, Subsidiary
+from applications.company.models import BoxesCompensation, CenterCost, Company, MutualSecurity, Subsidiary
+from applications.company.models import Commune, Region
 
 def validate_rut(rut):
     rut = (rut.replace(".", "").replace("-", "")).upper()  # Eliminar puntos y guiones
@@ -164,4 +165,28 @@ class SubsidiarySerializer(serializers.ModelSerializer):
             , 'region'
             , 'country'
             , 'sub_matrixhouse'
+        ]
+
+
+class GetSubsidiarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subsidiary
+        fields = [
+            'sub_id',
+            'sub_name',
+            'sub_mail',
+            'sub_phone',
+            'sub_address',
+            'commune',
+            'region',
+            'sub_matrixhouse'
+        ]
+
+
+class CenterCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CenterCost
+        fields = [
+            'company',
+            'cencost_name'
         ]

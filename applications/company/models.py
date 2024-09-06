@@ -174,7 +174,7 @@ class Subsidiary(models.Model):
     sub_id = models.AutoField("Key", primary_key=True)
     sub_name = models.CharField(
         "Descripción de la unidad", max_length=255, null=True, blank=True)
-    company = models.ForeignKey(Company, verbose_name='Company', db_column='sub_company_id', on_delete=models.PROTECT)
+    company = models.ForeignKey(Company, verbose_name='Company', db_column='sub_company_id', null=True, blank=True, on_delete=models.PROTECT)
     sub_mail = models.CharField("Correo electrónico", max_length=255, null=True, blank=True)
     sub_phone = models.CharField("Teléfono", max_length=255, null=True, blank=True)
     sub_address = models.CharField(
@@ -198,12 +198,9 @@ class Subsidiary(models.Model):
     def __str__(self):
         return f"{self.sub_name}"
 
-    def __get_latitude_longitude(address):
+    def get_latitude_longitude(self, address):
         try:
-            # Crear un objeto geolocator utilizando el proveedor Nominatim
             geolocator = Nominatim(user_agent="Nominatim", timeout=20)
-
-            # Obtener la ubicación (latitud, longitud) a partir de la dirección
             location = geolocator.geocode(address)
 
             if location:
@@ -219,12 +216,10 @@ class Subsidiary(models.Model):
         except Exception as e:
             print(f"Error al obtener la ubicación para la dirección {address}: {e}")
             return None, None
-        
-    get_latitude_longitude = property(__get_latitude_longitude)
 
     def save(self, *args, **kwargs):
-
-        latitude, longitude = self.__get_latitude_longitude
+        # Llamar correctamente al método con un parámetro
+        latitude, longitude = self.get_latitude_longitude(self.sub_address)
         self.sub_latitude = latitude
         self.sub_longitude = longitude
         super(Subsidiary, self).save(*args, **kwargs)

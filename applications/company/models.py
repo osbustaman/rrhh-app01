@@ -107,9 +107,9 @@ class Company(TimeStampedModel):
     com_phone_two = models.CharField("Télefono 2", max_length=25, null=True, blank=True)
     com_mail_two = models.CharField("Email 2", max_length=150, null=True, blank=True)
     com_date_ingress = models.DateField(verbose_name='Fecha inicio de actividades', null=True, blank=True)
-    com_is_holding = models.CharField("Es sub-empresa", max_length=1, choices=OPTIONS, default="S")
+    com_is_holding = models.CharField("Es sub-empresa", max_length=1, choices=OPTIONS, default="Y")
     com_id_parent_company = models.ForeignKey('self', db_column="com_id_parent_company", null=True, blank=True, default=None, on_delete=models.PROTECT)
-    com_active = models.CharField("Empresa activa", max_length=1, choices=OPTIONS, default="S")
+    com_active = models.CharField("Empresa activa", max_length=1, choices=OPTIONS, default="Y")
     com_rut_counter = models.CharField("Rut contador", max_length=12, null=True, blank=True)
     com_name_counter = models.CharField("Nombre Contador", max_length=150, null=True, blank=True)
     com_company_image = models.CharField("Logo Empresa", max_length=255, null=True, blank=True)
@@ -185,7 +185,7 @@ class Subsidiary(models.Model):
     sub_matrixhouse = models.CharField(
         "Es casa matriz", max_length=1, choices=OPTIONS, null=True, blank=True, default="N")
     sub_active = models.CharField(
-        "Sucursal activa", max_length=1, choices=OPTIONS, default="S")
+        "Sucursal activa", max_length=1, choices=OPTIONS, default="Y")
 
     def __int__(self):
         return self.sub_id
@@ -237,7 +237,7 @@ class Area(TimeStampedModel):
     company = models.ForeignKey(Company, verbose_name="Company",
                                 db_column="pos_company_id", on_delete=models.PROTECT)
     ar_active = models.CharField(
-        "Área activa", max_length=1, choices=OPTIONS, default="S")
+        "Área activa", max_length=1, choices=OPTIONS, default="Y")
     
     def __int__(self):
         return self.ar_id
@@ -267,7 +267,7 @@ class Department(TimeStampedModel):
                                 db_column="dep_area_id", on_delete=models.PROTECT)
     dep_description = models.TextField("Descripcion del departamento", null=True, blank=True)
     dep_active = models.CharField(
-        "departamento activo", max_length=1, choices=OPTIONS, default="S")
+        "departamento activo", max_length=1, choices=OPTIONS, default="Y")
     
     def __int__(self):
         return self.dep_id
@@ -297,7 +297,7 @@ class Position(TimeStampedModel):
                                 db_column="pos_department_id", on_delete=models.PROTECT)
     post_description = models.TextField("Descripcion del cargo", null=True, blank=True)
     pos_activa = models.CharField(
-        "Cargo activa", max_length=1, choices=OPTIONS, default="S")
+        "Cargo activa", max_length=1, choices=OPTIONS, default="Y")
     
     def __int__(self):
         return self.pos_id

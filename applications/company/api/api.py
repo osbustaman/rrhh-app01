@@ -22,22 +22,75 @@ from applications.company.models import (
 from remunerations.decorators import verify_token_cls
 
 
+@verify_token_cls
+class ListAssociatedEntities(generics.RetrieveAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    def get_queryset(self):
+        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'))
+
+    def get(self, request, *args, **kwargs):
+        try:
+            company = self.get_object()
+            serializer = CompanySerializer(company)
+
+            objectMutualSecurity = MutualSecurity.objects.filter(ms_id=serializer.data['mutual_security']).first()
+            objectBoxesCompensation = BoxesCompensation.objects.filter(bc_id=serializer.data['boxes_compensation']).first()
+
+            data = {
+                'mutual_security': objectMutualSecurity.ms_name,
+                'boxes_compensation': objectBoxesCompensation.bc_fantasy_name,
+                'mutual_security_id': objectMutualSecurity.ms_id,
+                'boxes_compensation_id': objectBoxesCompensation.bc_id,
+                'com_id': serializer.data['com_id']
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': f'Error al obtener las sucursales: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @verify_token_cls
 class CreateAssociatedEntities(generics.CreateAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk')).first()
+
 
     def put(self, request, *args, **kwargs):
         try:
             data = request.data
 
-            object_company = Company.objects.filter(com_id=kwargs.get('pk')).first()
+            object_company = self.get_queryset()
             object_company.mutual_security = MutualSecurity.objects.filter(ms_id=int(data['mutual_security'])).first()
             object_company.boxes_compensation = BoxesCompensation.objects.filter(bc_id=int(data['boxes_compensation'])).first()
             object_company.save()
 
-            return Response({'message': 'Success'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Entidades actualizadas con éxito'}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'message': 'Error al crear el centro de costo'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Error al asociar las entidades'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
+class DeleteCenterCost(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CenterCost.objects.all()
+    serializer_class = ListCenterCostSerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, cencost_id=self.kwargs.get('pk'))
+        return obj
+
+    def put(self, request, *args, **kwargs):
+        try:
+            center_cost = self.get_object()
+            center_cost.cencost_active = 'N'
+            center_cost.save()
+            return Response({'message': 'Centro de costo eliminado correctamente'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Error al eliminar el centro de costo'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @verify_token_cls
@@ -46,7 +99,7 @@ class ListCenterCost(generics.ListCreateAPIView):
     serializer_class = ListCenterCostSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'))
+        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'), cencost_active='Y')
 
     def get(self, request, *args, **kwargs):
         try:
@@ -117,6 +170,26 @@ class CreateCenterCost(generics.CreateAPIView):
 
 
 @verify_token_cls
+class DeleteSubsidiary(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Subsidiary.objects.all()
+    serializer_class = SubsidiarySerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, sub_id=self.kwargs.get('pk'))
+        return obj
+
+    def put(self, request, *args, **kwargs):
+        try:
+            subsidiary = self.get_object()
+            subsidiary.sub_active = 'N'
+            subsidiary.save()
+            return Response({'message': 'Sucursal eliminada correctamente'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Error al eliminar la sucursal'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
 class EditSubsidiary(generics.RetrieveUpdateDestroyAPIView):
     queryset = Subsidiary.objects.all()
     serializer_class = SubsidiarySerializer
@@ -144,7 +217,7 @@ class ListSubsidiary(generics.ListCreateAPIView):
     serializer_class = GetSubsidiarySerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'))
+        return super().get_queryset().filter(company__com_id=self.kwargs.get('pk'), sub_active='Y')
 
     def get(self, request, *args, **kwargs):
         try:
@@ -274,6 +347,26 @@ class EditCompany(generics.RetrieveUpdateDestroyAPIView):
 
 
 @verify_token_cls
+class DeleteCompany(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Company.objects.all()
+    serializer_class = PostCompanySerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, com_id=self.kwargs.get('pk'))
+        return obj
+
+    def put(self, request, *args, **kwargs):
+        try:
+            company = self.get_object()
+            company.com_active = 'N'
+            company.save()
+            return Response({'message': 'Empresa eliminada correctamente'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Error al eliminar la empresa'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@verify_token_cls
 class PostCompany(generics.CreateAPIView):
     queryset = Company.objects.all()
     serializer_class = PostCompanySerializer
@@ -308,11 +401,19 @@ class CompanyListCreate(generics.ListCreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
 
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = Company.objects.filter(com_active='Y')
+            serializer = CompanySerializer(queryset, many=True)
+            data = serializer.data
 
-@verify_token_cls
-class CompanyRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
+            for index, i in enumerate(queryset):
+                data[index]['commune_name'] = i.commune.com_name
+                data[index]['region_name'] = i.region.re_name
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': f'Error al obtener las empresas: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @verify_token_cls

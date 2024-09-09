@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from applications.company.api.serializer import (
+    AreaSerializer,
     BoxesCompensationSerializer
     , CenterCostSerializer
     , CompanySerializer
@@ -13,6 +14,7 @@ from applications.company.api.serializer import (
     , SubsidiarySerializer
 )
 from applications.company.models import (
+    Area,
     BoxesCompensation
     , CenterCost
     , Company
@@ -20,6 +22,52 @@ from applications.company.models import (
     , Subsidiary
 )
 from remunerations.decorators import verify_token_cls
+
+
+@verify_token_cls
+class CreateArea(generics.CreateAPIView):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+
+
+@verify_token_cls
+class RetrieveArea(generics.RetrieveAPIView):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+    lookup_field = 'ar_id'
+
+
+@verify_token_cls
+class UpdateArea(generics.UpdateAPIView):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+    lookup_field = 'ar_id'
+
+
+@verify_token_cls
+class DeleteArea(generics.UpdateAPIView):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+    lookup_field = 'ar_id'
+
+    def update(self, request, *args, **kwargs):
+        # Buscar el área utilizando el 'ar_id'
+        area = self.get_object()
+
+        # Cambiar el estado del área a inactiva
+        area.ar_active = 'N'
+        area.save()
+
+        return Response({'message': 'Área desactivada correctamente'}, status=status.HTTP_200_OK)
+
+
+@verify_token_cls
+class ListArea(generics.ListAPIView):
+    serializer_class = AreaSerializer
+
+    def get_queryset(self):
+        # Filtrar solo las áreas activas (ar_active = 'Y')
+        return Area.objects.filter(ar_active='Y')
 
 
 @verify_token_cls

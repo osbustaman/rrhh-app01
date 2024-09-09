@@ -3,9 +3,11 @@ from django.urls import path
 from applications.company.api.api import (
     BoxesCompensationListCreate, 
     BoxesCompensationRetrieveUpdateDestroy,
+    CreateArea,
     CreateAssociatedEntities,
     CreateCenterCost,
     CreateSubsidiary,
+    DeleteArea,
     DeleteCenterCost,
     DeleteCompany,
     DeleteSubsidiary,
@@ -15,6 +17,7 @@ from applications.company.api.api import (
     GetCompany,
     GetCreateCenterCost,
     GetSubsidiary,
+    ListArea,
     ListAssociatedEntities,
     ListCenterCost,
     ListSocialReazon,
@@ -23,7 +26,9 @@ from applications.company.api.api import (
     MutualSecurityRetrieveUpdateDestroy,
     CompanyListCreate,
     ListSocialReazon,
-    PostCompany
+    PostCompany,
+    RetrieveArea,
+    UpdateArea
 )
 from . import views
 
@@ -52,6 +57,16 @@ urlpatterns = [
 
     path('create-associated-entities/<int:pk>/', CreateAssociatedEntities.as_view(), name='create-associated-entities'),
     path('get-associated-entities/<int:pk>/', ListAssociatedEntities.as_view(), name='get-associated-entities'),
+
+
+    # Áreas ********************************************************************************************
+    path('add-areas/create/', CreateArea.as_view(), name='create-area'),
+    path('get-areas/<int:ar_id>/', RetrieveArea.as_view(), name='retrieve-area'),
+    path('update-areas/<int:ar_id>/', UpdateArea.as_view(), name='update-area'),
+    path('delete-areas/<int:ar_id>/', DeleteArea.as_view(), name='delete-area'),
+    path('list-areas/', ListArea.as_view(), name='list-areas'),
+     # Áreas ********************************************************************************************
+
     
 
     path('list-reason-social', ListSocialReazon.as_view(), name='list-reason-social'),

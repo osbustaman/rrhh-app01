@@ -1,7 +1,15 @@
 import re
 from rest_framework import serializers
 
-from applications.company.models import BoxesCompensation, CenterCost, Company, MutualSecurity, Subsidiary
+from applications.company.models import (
+    Area
+    , BoxesCompensation
+    , CenterCost
+    , Company
+    , Department
+    , MutualSecurity
+    , Subsidiary
+)
 from applications.company.models import Commune, Region
 
 def validate_rut(rut):
@@ -40,6 +48,20 @@ def validate_mail(correo):
         return True
     else:
         return False
+
+
+class DepartamentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['dep_id', 'dep_name', 'area', 'dep_description', 'dep_active']
+
+
+class AreaSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.com_name_company', read_only=True)
+
+    class Meta:
+        model = Area
+        fields = ['ar_id', 'ar_name', 'company', 'company_name', 'ar_active']
 
 
 class CompanySerializer(serializers.ModelSerializer):

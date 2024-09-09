@@ -25,6 +25,15 @@ from remunerations.decorators import verify_token_cls
 
 
 @verify_token_cls
+class ListArea(generics.ListAPIView):
+    serializer_class = AreaSerializer
+
+    def get_queryset(self):
+        # Filtrar solo las áreas activas (ar_active = 'Y')
+        return Area.objects.filter(ar_active='Y')
+
+
+@verify_token_cls
 class CreateArea(generics.CreateAPIView):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer

@@ -51,9 +51,10 @@ def validate_mail(correo):
 
 
 class DepartamentSerializer(serializers.ModelSerializer):
+    area_name = serializers.CharField(source='area.ar_name', read_only=True)
     class Meta:
         model = Department
-        fields = ['dep_id', 'dep_name', 'area', 'dep_description', 'dep_active']
+        fields = ['dep_id', 'dep_name', 'area', 'area_name', 'dep_description', 'dep_active']
 
 
 class AreaSerializer(serializers.ModelSerializer):

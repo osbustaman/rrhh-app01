@@ -20,6 +20,7 @@ from applications.company.api.api import (
     ListArea,
     ListAssociatedEntities,
     ListCenterCost,
+    ListDepartament,
     ListSocialReazon,
     ListSubsidiary, 
     MutualSecurityListCreate, 
@@ -59,13 +60,16 @@ urlpatterns = [
     path('get-associated-entities/<int:pk>/', ListAssociatedEntities.as_view(), name='get-associated-entities'),
 
 
-    # Áreas ********************************************************************************************
+    # area ********************************************************************************************
     path('add-areas/create/', CreateArea.as_view(), name='create-area'),
     path('get-areas/<int:ar_id>/', RetrieveArea.as_view(), name='retrieve-area'),
     path('update-areas/<int:ar_id>/', UpdateArea.as_view(), name='update-area'),
     path('delete-areas/<int:ar_id>/', DeleteArea.as_view(), name='delete-area'),
     path('list-areas/', ListArea.as_view(), name='list-areas'),
-     # Áreas ********************************************************************************************
+    # area ********************************************************************************************
+
+    # departament ********************************************************************************************
+    path('list-departament/<int:dep_id>/', ListDepartament.as_view(), name='list-departament'),
 
     
 

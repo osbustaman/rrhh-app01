@@ -6,7 +6,8 @@ from applications.company.api.serializer import (
     AreaSerializer,
     BoxesCompensationSerializer
     , CenterCostSerializer
-    , CompanySerializer
+    , CompanySerializer,
+    DepartamentSerializer
     , GetSubsidiarySerializer
     , ListCenterCostSerializer
     , MutualSecuritySerializer
@@ -18,10 +19,20 @@ from applications.company.models import (
     BoxesCompensation
     , CenterCost
     , Company
+    , Department
     , MutualSecurity
     , Subsidiary
 )
 from remunerations.decorators import verify_token_cls
+
+
+@verify_token_cls
+class ListDepartament(generics.ListAPIView):
+    serializer_class = DepartamentSerializer
+
+    def get_queryset(self):
+        # Filtrar solo las áreas activas (ar_active = 'Y')
+        return Department.objects.filter(ar_active='Y')
 
 
 @verify_token_cls

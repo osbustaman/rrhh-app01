@@ -6,10 +6,14 @@ from applications.company.api.api import (
     CreateArea,
     CreateAssociatedEntities,
     CreateCenterCost,
+    CreateDepartment,
+    CreatePosition,
     CreateSubsidiary,
     DeleteArea,
     DeleteCenterCost,
     DeleteCompany,
+    DeleteDepartment,
+    DeletePosition,
     DeleteSubsidiary,
     EditCenterCost,
     EditCompany,
@@ -21,6 +25,7 @@ from applications.company.api.api import (
     ListAssociatedEntities,
     ListCenterCost,
     ListDepartament,
+    ListPosition,
     ListSocialReazon,
     ListSubsidiary, 
     MutualSecurityListCreate, 
@@ -29,9 +34,12 @@ from applications.company.api.api import (
     ListSocialReazon,
     PostCompany,
     RetrieveArea,
-    UpdateArea
+    RetrieveDepartment,
+    RetrievePosition,
+    UpdateArea,
+    UpdateDepartment,
+    UpdatePosition
 )
-from . import views
 
 urlpatterns = [
     path('boxes-compensation/', BoxesCompensationListCreate.as_view(), name='boxes_compensation_list_create'),
@@ -59,20 +67,30 @@ urlpatterns = [
     path('create-associated-entities/<int:pk>/', CreateAssociatedEntities.as_view(), name='create-associated-entities'),
     path('get-associated-entities/<int:pk>/', ListAssociatedEntities.as_view(), name='get-associated-entities'),
 
+    path('list-reason-social', ListSocialReazon.as_view(), name='list-reason-social'),
 
     # area ********************************************************************************************
     path('add-areas/create/', CreateArea.as_view(), name='create-area'),
     path('get-areas/<int:ar_id>/', RetrieveArea.as_view(), name='retrieve-area'),
     path('update-areas/<int:ar_id>/', UpdateArea.as_view(), name='update-area'),
-    path('delete-areas/<int:ar_id>/', DeleteArea.as_view(), name='delete-area'),
+    path('delete-area/<int:ar_id>/', DeleteArea.as_view(), name='delete-area'),
     path('list-areas/', ListArea.as_view(), name='list-areas'),
     # area ********************************************************************************************
 
-    # departament ********************************************************************************************
-    path('list-departament/<int:dep_id>/', ListDepartament.as_view(), name='list-departament'),
-
+    # departament *************************************************************************************
+    path('list-departament/<int:ar_id>/', ListDepartament.as_view(), name='list-departament'),
+    path('add-department/create/', CreateDepartment.as_view(), name='create-department'),
+    path('delete-department/<int:dep_id>/', DeleteDepartment.as_view(), name='delete-department'),
+    path('update-department/<int:dep_id>/', UpdateDepartment.as_view(), name='update-department'),
+    path('get-department/<int:dep_id>/', RetrieveDepartment.as_view(), name='retrieve-department'),
+    # departament *************************************************************************************
     
+    # position ****************************************************************************************
+    path('list-position/<int:dep_id>/', ListPosition.as_view(), name='list-position'),
+    path('add-position/create/', CreatePosition.as_view(), name='create-position'),
+    path('delete-position/<int:pos_id>/', DeletePosition.as_view(), name='delete-position'),
+    path('update-position/<int:pos_id>/', UpdatePosition.as_view(), name='update-position'),
+    path('get-position/<int:pos_id>/', RetrievePosition.as_view(), name='retrieve-position'),
+    # position ****************************************************************************************
 
-    path('list-reason-social', ListSocialReazon.as_view(), name='list-reason-social'),
-    
 ]

@@ -3,27 +3,109 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from applications.company.api.serializer import (
-    AreaSerializer,
-    BoxesCompensationSerializer
+    AreaSerializer
+    , BoxesCompensationSerializer
     , CenterCostSerializer
-    , CompanySerializer,
-    DepartamentSerializer
+    , CompanySerializer
+    , DepartamentSerializer
     , GetSubsidiarySerializer
     , ListCenterCostSerializer
     , MutualSecuritySerializer
+    , PositionSerializer
     , PostCompanySerializer
     , SubsidiarySerializer
 )
 from applications.company.models import (
-    Area,
-    BoxesCompensation
+    Area
+    , BoxesCompensation
     , CenterCost
     , Company
     , Department
     , MutualSecurity
+    , Position
     , Subsidiary
 )
 from remunerations.decorators import verify_token_cls
+
+
+@verify_token_cls
+class ListPosition(generics.ListAPIView):
+    serializer_class = PositionSerializer
+
+    def get_queryset(self):
+        dep_id = self.kwargs.get('dep_id')
+        try:
+            object_department = Department.objects.get(dep_id=dep_id)
+            object_position = Position.objects.filter(departament=object_department, pos_active='Y')
+            return object_position
+        except Area.DoesNotExist:
+            return Position.objects.none()
+
+
+@verify_token_cls
+class CreatePosition(generics.CreateAPIView):
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+
+
+@verify_token_cls
+class DeletePosition(generics.UpdateAPIView):
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+    lookup_field = 'pos_id'
+
+    def update(self, request, *args, **kwargs):
+        pos = self.get_object()
+        pos.pos_active = 'N'
+        pos.save()
+        return Response({'message': 'Cargo desactivada correctamente'}, status=status.HTTP_200_OK)
+
+
+@verify_token_cls
+class UpdatePosition(generics.UpdateAPIView):
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+    lookup_field = 'pos_id'
+
+
+@verify_token_cls
+class RetrievePosition(generics.RetrieveAPIView):
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+    lookup_field = 'pos_id'
+
+
+@verify_token_cls
+class RetrieveDepartment(generics.RetrieveAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartamentSerializer
+    lookup_field = 'dep_id'
+
+
+@verify_token_cls
+class UpdateDepartment(generics.UpdateAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartamentSerializer
+    lookup_field = 'dep_id'
+
+
+@verify_token_cls
+class DeleteDepartment(generics.UpdateAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartamentSerializer
+    lookup_field = 'dep_id'
+
+    def update(self, request, *args, **kwargs):
+        dpto = self.get_object()
+        dpto.dep_active = 'N'
+        dpto.save()
+        return Response({'message': 'Departamento desactivada correctamente'}, status=status.HTTP_200_OK)
+
+
+@verify_token_cls
+class CreateDepartment(generics.CreateAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartamentSerializer
 
 
 @verify_token_cls
@@ -31,8 +113,13 @@ class ListDepartament(generics.ListAPIView):
     serializer_class = DepartamentSerializer
 
     def get_queryset(self):
-        # Filtrar solo las áreas activas (ar_active = 'Y')
-        return Department.objects.filter(ar_active='Y')
+        ar_id = self.kwargs.get('ar_id')
+        try:
+            object_area = Area.objects.get(ar_id=ar_id)
+            object_department = Department.objects.filter(area=object_area, dep_active='Y')
+            return object_department
+        except Area.DoesNotExist:
+            return Department.objects.none()
 
 
 @verify_token_cls

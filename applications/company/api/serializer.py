@@ -7,7 +7,8 @@ from applications.company.models import (
     , CenterCost
     , Company
     , Department
-    , MutualSecurity
+    , MutualSecurity,
+    Position
     , Subsidiary
 )
 from applications.company.models import Commune, Region
@@ -48,6 +49,13 @@ def validate_mail(correo):
         return True
     else:
         return False
+
+
+class PositionSerializer(serializers.ModelSerializer):
+    dep_name = serializers.CharField(source='departament.dep_name', read_only=True)
+    class Meta:
+        model = Position
+        fields = ['pos_id', 'pos_name_position', 'departament', 'dep_name', 'post_description', 'pos_active']
 
 
 class DepartamentSerializer(serializers.ModelSerializer):

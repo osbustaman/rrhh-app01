@@ -45,7 +45,7 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 
 class PositionAdmin(admin.ModelAdmin):
-    list_display = ['pos_id', 'pos_name_position', 'departament', 'pos_activa']
+    list_display = ['pos_id', 'pos_name_position', 'departament', 'pos_active']
     list_filter = ['pos_name_position']
     search_fields = ['pos_name_position']
     list_per_page = 10

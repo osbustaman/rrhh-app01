@@ -6,6 +6,8 @@ from applications.security.models import Country, Region, Commune
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 
+from remunerations.choices import YES_NO_OPTIONS
+
 # Create your models here.
 class BoxesCompensation(models.Model):
 
@@ -296,7 +298,7 @@ class Position(TimeStampedModel):
     departament = models.ForeignKey(Department, verbose_name="Department",
                                 db_column="pos_department_id", on_delete=models.PROTECT)
     post_description = models.TextField("Descripcion del cargo", null=True, blank=True)
-    pos_activa = models.CharField(
+    pos_active = models.CharField(
         "Cargo activa", max_length=1, choices=OPTIONS, default="Y")
     
     def __int__(self):
@@ -474,3 +476,34 @@ class Bank(models.Model):
         verbose_name_plural = "Listado de bancos"
         db_table = "banks"
         ordering = ['ban_id']
+
+
+class GeneralTable(TimeStampedModel):
+
+    tg_id = models.AutoField("Key", primary_key=True)
+    tg_tablename = models.CharField("nombre_tabla", max_length=150)
+    tg_item = models.CharField(
+        "elemento_id", null=True, blank=True, max_length=25)
+    tg_description = models.TextField("descripcion", null=True, blank=True)
+    tg_short_description = models.CharField("descripcion corta", max_length=255, null=True, blank=True)
+    tg_value_one = models.CharField("extra 1", max_length=255, null=True, blank=True)
+    tg_value_two = models.CharField("extra 2", max_length=255, null=True, blank=True)
+    tg_value_three = models.CharField("extra 3", max_length=255, null=True, blank=True)
+    tg_value_four = models.CharField("extra 4", max_length=255, null=True, blank=True)
+    tg_value_five = models.CharField("extra 5", max_length=255, null=True, blank=True)
+    tg_value_six = models.CharField("extra 6", max_length=255, null=True, blank=True)
+    tg_active = models.CharField(
+        "Activo", max_length=1, choices=YES_NO_OPTIONS, default="Y")
+
+    def __int__(self):
+        return self.tg_id
+
+    def __str__(self):
+        return f"{self.tg_item} - {self.tg_short_description}"
+
+    def save(self, *args, **kwargs):
+        super(GeneralTable, self).save(*args, **kwargs)
+
+    class Meta:
+        db_table = "comp_GeneralTable"
+        ordering = ['tg_id']

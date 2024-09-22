@@ -43,6 +43,7 @@ urlpatterns = [
     path('', include('applications.administrator.urls')),
     path('', include('applications.company.urls')),
     path('', include('applications.employee.urls')),
+    path('', include('applications.humanresources.urls')),
 
 
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

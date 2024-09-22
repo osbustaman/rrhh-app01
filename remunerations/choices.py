@@ -181,3 +181,8 @@ ALL_DAYS = (
     ('Sábado', 'Sábado'),
     ('Domingo', 'Domingo'),
 )
+
+HEALTH_ENTITY_TYPE = (
+        ('F', 'FONASA'),
+        ('I', 'ISAPRE'),
+)

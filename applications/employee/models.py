@@ -2,20 +2,30 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from django.contrib.auth.models import User
 
-from applications.company.models import Bank, Company, GeneralTable, Position, Subsidiary
+from applications.company.models import Afp, Bank, Company, GeneralTable, Health, Position, Subsidiary
 from applications.humanresources.models import ContractType
 from applications.security.models import Commune, Country, Region
 from remunerations.choices import (
-    CONTRACT_TYPE, CONTRIBUTION_TYPE, ESTATE_JOB, FAMILY_ALLOWANCE_SECTION, NOTIFICATION, SHAPE, TAX_REGIME, TYPE_GRATIFICATION, WORKER_SECTOR, WORKER_TYPE, YES_NO_OPTIONS, SEX_OPTIONS, CIVIL_STATUS_OPTIONS,
-    PAYMENT_METHOD_OPTIONS, BANK_ACCOUNT_TYPE_OPTIONS, 
-    STUDY_TYPE_OPTIONS, STUDY_STATUS_OPTIONS
+    CONTRACT_TYPE
+    , CONTRIBUTION_TYPE
+    , ESTATE_JOB
+    , FAMILY_ALLOWANCE_SECTION
+    , NOTIFICATION
+    , SHAPE
+    , TAX_REGIME
+    , TYPE_GRATIFICATION
+    , WORKER_SECTOR
+    , WORKER_TYPE
+    , YES_NO_OPTIONS
+    , SEX_OPTIONS
+    , CIVIL_STATUS_OPTIONS
+    , PAYMENT_METHOD_OPTIONS
+    , BANK_ACCOUNT_TYPE_OPTIONS
+    , STUDY_TYPE_OPTIONS
+    , STUDY_STATUS_OPTIONS
 )
 
 class UserTypeContract(TimeStampedModel):
-    OPCIONES = (
-        (1, 'SI'),
-        (0, 'NO'),
-    )
 
     utc_id = models.AutoField("Key", primary_key=True)
     user = models.ForeignKey(User, verbose_name="Usuario",
@@ -23,9 +33,9 @@ class UserTypeContract(TimeStampedModel):
     contractType = models.ForeignKey(
         ContractType, verbose_name="ContractType", db_column="utc_contract_type_id", on_delete=models.PROTECT)
     utc_maincontract = models.CharField(
-        "Contrato principal", choices=YES_NO_OPTIONS, default='Y')
+        "Contrato principal", choices=YES_NO_OPTIONS, max_length=1, default='Y')
     utc_signedcontract = models.CharField(
-        "Contrato firmado", choices=YES_NO_OPTIONS, default='Y')
+        "Contrato firmado", choices=YES_NO_OPTIONS, max_length=1, default='Y')
     utc_signedcontractdate = models.DateField("Fecha de contrato firmado", null=True, blank=True)
 
     def __int__(self):
@@ -40,6 +50,7 @@ class UserTypeContract(TimeStampedModel):
 
 
 class Employee(models.Model):
+    
     emp_id = models.AutoField("ID", primary_key=True)
     user = models.ForeignKey(User, verbose_name="Usuario", on_delete=models.PROTECT, null=True, blank=True)
     emp_foreign = models.CharField("Extranjero", choices=YES_NO_OPTIONS, max_length=1, default="Y")
@@ -83,71 +94,78 @@ class Employee(models.Model):
 
 class UserCompany(TimeStampedModel):
 
-
-    ue_id = models.AutoField("Key", primary_key=True)
+    uc_id = models.AutoField("Key", primary_key=True)
     user = models.ForeignKey(User, verbose_name="User",
                             db_column="uc_user_id", on_delete=models.PROTECT)
     company = models.ForeignKey(
         Company, verbose_name="Company", db_column="uc_company_id", on_delete=models.PROTECT)
-    cargo = models.ForeignKey(
+    position = models.ForeignKey(
         Position, verbose_name="Position", db_column="uc_position_id", on_delete=models.PROTECT, null=True, blank=True, related_name="user_emp_position")
     subsidiary = models.ForeignKey(
         Subsidiary, verbose_name="Subsidiary", db_column="uc_subsidiary_id", on_delete=models.PROTECT, null=True, blank=True)
+    
+    uc_is_boss = models.CharField(
+        "Es jefatura", choices=YES_NO_OPTIONS, max_length=1, null=True, blank=True, default="N")
 
-    ue_estate_employee = models.IntegerField(
+    uc_estate_employee = models.IntegerField(
         "Estado de trabajador", choices=ESTATE_JOB, null=True, blank=True)
-    ue_workertype = models.IntegerField(
+    uc_workertype = models.IntegerField(
         "Tipo de trabajador", choices=WORKER_TYPE, null=True, blank=True)
-    eu_contracttype = models.CharField(
+    uc_contracttype = models.CharField(
         "Tipo de contrato", choices=CONTRACT_TYPE, max_length=5, null=True, blank=True, default=None)
-    ue_hiring_date = models.DateField(
+    uc_hiring_date = models.DateField(
         "Fecha de contratacion del usuario", null=True, blank=True)
-    eu_daterenewalcontract = models.DateField(
+    uc_daterenewalcontract = models.DateField(
         "Fecha primer contrato", null=True, blank=True)
-    ue_horassemanales = models.IntegerField(
+    uc_weeklyhours = models.IntegerField(
         "Horas trabajadas", null=True, blank=True, default=45)
-    ue_agreedworkdays = models.CharField(
+    uc_agreedworkdays = models.CharField(
         "Dias de trabajo pactados", null=True, blank=True, max_length=255)
-    ue_asignacionfamiliar = models.CharField(
+    uc_familyassignment = models.CharField(
         "Asignación familiar", choices=YES_NO_OPTIONS, max_length=1, null=True, blank=True, default="N")
     
-    ue_family_allowance_section = models.IntegerField(
-        "Asignación familiar", choices=FAMILY_ALLOWANCE_SECTION, null=True, blank=True)
-    ue_cargasfamiliares = models.IntegerField(
+    uc_family_allowance_section = models.IntegerField(
+        "Tramo asignación familiar", choices=FAMILY_ALLOWANCE_SECTION, null=True, blank=True)
+    uc_familialloads = models.IntegerField(
         "Cargas familiares", null=True, blank=True, default=0)
-    ue_montoasignacionfamiliar = models.DecimalField(
+    uc_amountfamilyassignment = models.DecimalField(
         "Monto asignación familiar", max_digits=15, decimal_places=2, null=True, blank=True, default=0)
-    ue_sueldobase = models.DecimalField(
+    uc_basesalary = models.DecimalField(
         "Sueldo base", max_digits=15, decimal_places=6, null=True, blank=True, default=0)
-    ue_gratificacion = models.CharField(
+    uc_gratification = models.CharField(
         "Tiene gratificación", choices=YES_NO_OPTIONS, max_length=1, null=True, blank=True)
-    ue_tipogratificacion = models.CharField(
+    uc_typegratification = models.CharField(
         "Tipo de gratificación", choices=TYPE_GRATIFICATION, max_length=1, null=True, blank=True)
-    ue_comiciones = models.CharField(
-        "Tiene comociones", choices=YES_NO_OPTIONS, max_length=1, null=True, blank=True)
-    ue_porcentajecomicion = models.DecimalField(
-        "Porcentaje comociones", max_digits=15, decimal_places=2, null=True, blank=True)
-    ue_semanacorrida = models.CharField(
+    uc_semanacorrida = models.CharField(
         "Tiene semana corrida", choices=YES_NO_OPTIONS, max_length=1, null=True, blank=True)
-    
-    ue_workersector = models.IntegerField(
+    uc_workersector = models.IntegerField(
         "Sector del trabajador", choices=WORKER_SECTOR, null=True, blank=True)
+    
+    afp = models.ForeignKey(Afp, verbose_name="AFP", db_column="uc_afp_id",
+                            on_delete=models.PROTECT, null=True, blank=True)
+    health = models.ForeignKey(Health, verbose_name="Salud", db_column="uc_health_id",
+                                on_delete=models.PROTECT, null=True, blank=True)
+    uc_ufisapre = models.FloatField(
+        "Valor en UF isapre", null=True, blank=True, default=0)
+    uc_funisapre = models.CharField(
+        "Fun isapre", max_length=100, null=True, blank=True)
 
-    ue_fechanotificacioncartaaviso = models.DateField(
+    uc_datenotificationletternotice = models.DateField(
         "Fecha de notificacion carta aviso", null=True, blank=True)
-    ue_fechatermino = models.DateField(
+    eu_enddate = models.DateField(
         "Fecha de termino relacion laboral", null=True, blank=True, default=None)
-    ue_cuasal = models.ForeignKey(GeneralTable, verbose_name="GeneralTable",
-                                db_column="ue_causal", on_delete=models.PROTECT, null=True, blank=True)
-    ue_fundamento = models.TextField("Fundamento", null=True, blank=True)
-    ue_tiponoticacion = models.CharField(
+    uc_causal = models.ForeignKey(GeneralTable, verbose_name="GeneralTable",
+                                db_column="uc_causal", on_delete=models.PROTECT, null=True, blank=True)
+    uc_foundation = models.TextField("Fundamento", null=True, blank=True)
+    uc_tiponotication = models.CharField(
         "Tipo de notificacion", choices=NOTIFICATION, max_length=1, null=True, blank=True)
+    
 
     def __int__(self):
-        return self.ue_id
+        return self.uc_id
 
     def __str__(self):
-        return f"{self.ue_id} - {self.user.first_name} {self.user.last_name}"
+        return f"{self.uc_id} - {self.user.first_name} {self.user.last_name}"
 
     def save(self, *args, **kwargs):
         super(UserCompany, self).save(*args, **kwargs)
@@ -156,121 +174,3 @@ class UserCompany(TimeStampedModel):
         db_table = 'emp_UserCompany'
         ordering = ['uc_id']
 
-
-# class Contact(TimeStampedModel):
-#     TYPE = (
-#         (1, 'Email Personal'),
-#         (2, 'Email Corporativo'),
-#         (3, 'Teléfono Movil'),
-#         (4, 'Teléfono Fijo'),
-#         (5, 'Teléfono Familiar'),
-#         (6, 'Email Familiar'),
-#     )
-
-#     OPCIONES = (
-#         ('S', 'SI'),
-#         ('N', 'NO'),
-#     )
-
-#     con_id = models.AutoField("Key", primary_key=True)
-#     con_contact_type = models.IntegerField(
-#         "Tipo de contacto", choices=TYPE, default=2)
-#     con_mail_contact = models.CharField(
-#         "Correo de contacto", max_length=120, null=True, blank=True)
-#     con_phone_contact = models.CharField(
-#         "Teléfono de contacto", max_length=120, null=True, blank=True)
-#     cont_name_contact = models.CharField("Nombre del contacto", max_length=150)
-#     user = models.ForeignKey(User, verbose_name="Usuario",
-#                              db_column="con_user", on_delete=models.PROTECT)
-#     con_actiove = models.CharField(
-#         "Contacto activo", choices=OPCIONES, max_length=1, default="S")
-
-#     def __int__(self):
-#         return self.con_id
-
-#     def save(self, *args, **kwargs):
-#         super(Contact, self).save(*args, **kwargs)
-
-#     class Meta:
-#         db_table = 'usu_contact'
-#         ordering = ['con_id']
-
-
-# class ConceptUser(TimeStampedModel):
-
-#     REMUNERATION_TYPE = (
-#         (1, 'Orinarias'),
-#         (2, 'Extraordinarias'),
-#         (3, 'Especiales'),
-#     )
-
-#     cu_id = models.AutoField("Key", primary_key=True)
-#     user = models.ForeignKey(User, verbose_name="Usuario",
-#                              db_column="cu_usuario_id", on_delete=models.PROTECT)
-#     concept = models.ForeignKey(
-#         Concept, verbose_name="Concept", db_column="cu_concept_id", on_delete=models.PROTECT)
-#     cu_typeremuneration = models.IntegerField("Fórmula", choices=REMUNERATION_TYPE, null=True, blank=True)
-#     cu_formula = models.FloatField("Fórmula", null=True, blank=True)
-#     cu_value = models.FloatField("Valor", null=True, blank=True, default=0)
-#     cu_search_field = models.CharField("Campo de busqueda", null=True, blank=True, default=0, max_length=50)
-#     cu_description = models.CharField(
-#         "Descripción", max_length=150, null=True, blank=True)
-
-#     def __int__(self):
-#         return self.cu_id
-
-#     def __str__(self):
-#         return f"{self.cu_id} - {self.user.username} - {self.concept.conc_id}"
-
-#     def save(self, *args, **kwargs):
-#         super(ConceptUser, self).save(*args, **kwargs)
-
-#     class Meta:
-#         db_table = 'usu_concept_user'
-#         ordering = ['cu_id']
-
-
-# class FamilyResponsibilities(TimeStampedModel):
-
-#     SEXO = (
-#         ('M', 'MASCULINO'),
-#         ('F', 'FEMENINO'),
-#     )
-
-#     RELATIONSSHIP = (
-#         (0, '---------'),
-#         (1, 'Padre/Madre'),
-#         (2, 'Hij@'),
-#         (3, 'Herman@'),
-#         (4, 'Cónyuge'),
-#     )
-
-#     OPCIONES = (
-#         (1, 'SI'),
-#         (0, 'NO'),
-#     )
-    
-#     fr_id = models.AutoField("Key", primary_key=True)
-#     user = models.ForeignKey(User, verbose_name="Colaborador",
-#                              db_column="fr_user", null=True, blank=True, on_delete=models.PROTECT)
-#     fr_rut = models.CharField("Rut", max_length=100)
-#     fr_sexo = models.CharField("Sexo", max_length=1, choices=SEXO)
-#     fr_relationship = models.IntegerField("Parentezco", choices=RELATIONSSHIP)
-#     fr_firstname = models.CharField("Nombres", max_length=150)
-#     fr_lastname = models.CharField("Apellidos", max_length=150)
-#     fr_fechanacimiento = models.DateField("Fecha de nacimiento")
-#     fr_activo = models.IntegerField(
-#         "Activo", choices=OPCIONES, default=1)
-
-#     def __int__(self):
-#         return self.col_id
-    
-#     def __str__(self):
-#         return f"{self.fr_id} - {self.user.first_name} {self.user.last_name} - {self.fr_firstname} {self.fr_lastname}"
-
-#     def save(self, *args, **kwargs):
-#         super(FamilyResponsibilities, self).save(*args, **kwargs)
-
-#     class Meta:
-#         db_table = "usu_family_responsibilities"
-#         ordering = ['fr_id']

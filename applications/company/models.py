@@ -6,7 +6,7 @@ from applications.security.models import Country, Region, Commune
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 
-from remunerations.choices import YES_NO_OPTIONS
+from remunerations.choices import HEALTH_ENTITY_TYPE, YES_NO_OPTIONS
 
 # Create your models here.
 class BoxesCompensation(models.Model):
@@ -347,22 +347,12 @@ class CenterCost(models.Model):
 
 
 class Health(models.Model):
-    TIPO = (
-        ('F', 'FONASA'),
-        ('I', 'ISAPRE'),
-    )
-
-    OPTIONS = (
-        ('Y', 'SI'),
-        ('N', 'NO'),
-    )
-
     healt_id = models.AutoField("Key", primary_key=True)
     healt_name = models.CharField("Nombre", max_length=100)
     healt_code = models.CharField("Código", max_length=100)
-    healt_entity_type = models.CharField("Tipo entidad", max_length=1, choices=TIPO, default='I')
+    healt_entity_type = models.CharField("Tipo entidad", max_length=1, choices=HEALTH_ENTITY_TYPE, default='I')
     healt_active = models.CharField(
-        "Activo", max_length=1, choices=OPTIONS, default="Y")
+        "Activo", max_length=1, choices=YES_NO_OPTIONS, default="Y")
 
     def __int__(self):
         return self.healt_id
@@ -389,11 +379,6 @@ class Health(models.Model):
 
 class Afp(models.Model):
 
-    OPTIONS = (
-        ('Y', 'SI'),
-        ('N', 'NO'),
-    )
-    
     afp_id = models.AutoField("Key", primary_key=True)
     afp_code_previred = models.CharField("Código previred", max_length=100, null=False, blank=True)
     afp_name = models.CharField("Nombre", max_length=100)
@@ -404,7 +389,7 @@ class Afp(models.Model):
     afp_self_employed_worker_rate = models.FloatField(
         "Tasa traba. independiente", default=0)
     afp_active = models.CharField(
-        "Activo", max_length=1, choices=OPTIONS, default="Y")
+        "Activo", max_length=1, choices=YES_NO_OPTIONS, default="Y")
 
     def __int__(self):
         return self.afp_id

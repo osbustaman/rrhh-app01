@@ -13,7 +13,8 @@ from remunerations.choices import (
     , NOTIFICATION
     , SHAPE
     , TAX_REGIME
-    , TYPE_GRATIFICATION
+    , TYPE_GRATIFICATION,
+    TYPE_USERS
     , WORKER_SECTOR
     , WORKER_TYPE
     , YES_NO_OPTIONS
@@ -159,6 +160,8 @@ class UserCompany(TimeStampedModel):
     uc_foundation = models.TextField("Fundamento", null=True, blank=True)
     uc_tiponotication = models.CharField(
         "Tipo de notificacion", choices=NOTIFICATION, max_length=1, null=True, blank=True)
+    uc_type_user = models.IntegerField(
+        "Tipo de notificacion", choices=TYPE_USERS, null=True, blank=True)
     
 
     def __int__(self):

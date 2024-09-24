@@ -183,6 +183,13 @@ ALL_DAYS = (
 )
 
 HEALTH_ENTITY_TYPE = (
-        ('F', 'FONASA'),
-        ('I', 'ISAPRE'),
+    ('F', 'FONASA'),
+    ('I', 'ISAPRE'),
+)
+
+TYPE_USERS = (
+    (1, 'Admin'),
+    (2, 'HR Manager'),
+    (3, 'Colaborador'),
+    (4, 'Supervisor'),
 )

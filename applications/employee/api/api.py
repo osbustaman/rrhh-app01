@@ -8,10 +8,20 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from django.core.cache import cache
 
-
 from applications.employee.api.serializer import LoginTokenObtainPairSerializer, LoginUserSerializer
 from remunerations.decorators import verify_token_cls
 from remunerations.utils import decode_token
+
+
+@verify_token_cls
+class ListArea(generics.ListAPIView):
+    serializer_class = LoginUserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(is_active=True)
+
+
+
 
 
 @verify_token_cls
@@ -61,6 +71,7 @@ class LoginUser(TokenObtainPairView):
             return Response({'error': 'Contraseña o nombre de usuario incorrectos'}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({'error': 'Contraseña o nombre de usuario incorrectos'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @verify_token_cls
 class LogoutUser(generics.GenericAPIView):

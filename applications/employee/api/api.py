@@ -4,24 +4,48 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
-from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from django.core.cache import cache
+from django.db.models import F, Value, CharField, Q
+from django.db.models.functions import Concat
 
-from applications.employee.api.serializer import LoginTokenObtainPairSerializer, LoginUserSerializer
+from applications.employee.api.serializer import EmployeeSerializer, LoginTokenObtainPairSerializer, LoginUserSerializer
+from applications.employee.models import Employee
 from remunerations.decorators import verify_token_cls
 from remunerations.utils import decode_token
 
 
 @verify_token_cls
-class ListArea(generics.ListAPIView):
-    serializer_class = LoginUserSerializer
+class ListEmployees(generics.ListAPIView):
+    serializer_class = EmployeeSerializer
 
     def get_queryset(self):
-        return User.objects.filter(is_active=True)
+        pk = self.kwargs.get('pk', None)
 
+        if pk:
+            return Employee.objects.filter(
+                user__usercompany__company_id=pk
+            ).annotate(
+                full_name=Concat('user__first_name', Value(' '), 'user__last_name'),
+                id_employee=F('emp_id'),
+                rut=F('emp_rut'),
+                position_user=F('user__usercompany__position__pos_name_position')
+            ).order_by('full_name', 'rut')
 
+        return Employee.objects.all().annotate(
+            full_name=Concat('user__first_name', Value(' '), 'user__last_name'),
+            id_employee=F('emp_id'),
+            rut=F('emp_rut'),
+            position_user=F('user__usercompany__position__pos_name_position')
+        ).order_by('full_name', 'rut')
 
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except IndexError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 
 @verify_token_cls

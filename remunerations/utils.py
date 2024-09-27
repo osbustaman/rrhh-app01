@@ -1,9 +1,11 @@
+import boto3
 import datetime
 import re
 
 from jwt import encode, decode, ExpiredSignatureError, InvalidSignatureError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from decouple import config
@@ -91,3 +93,33 @@ def validarRut(rut):
     else:
         dv_calculado = str(dv_calculado)
     return dv == dv_calculado
+
+
+def create_folder(cus_name_bd):
+    # Inicializar el cliente de S3 con las credenciales de AWS
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION
+    )
+
+    # Nombre del bucket
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+
+    # Crear una "carpeta" (un directorio vacío) en el bucket de S3
+    directory_name = f"customers/{cus_name_bd}/"
+
+    # Verificar si el directorio ya existe
+    response = s3.list_objects_v2(Bucket=bucket_name, Prefix=directory_name, MaxKeys=1)
+
+    # Si ya existe, no hacer nada
+    if 'Contents' in response:
+        print(f"Directory '{directory_name}' already exists in bucket '{bucket_name}'")
+        return directory_name 
+
+    # Si no existe, crear el directorio
+    s3.put_object(Bucket=bucket_name, Key=directory_name)
+
+    print(f"Directory '{directory_name}' created in bucket '{bucket_name}'")
+    return directory_name

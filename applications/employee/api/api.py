@@ -6,13 +6,62 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
 from django.core.cache import cache
+from django.db import IntegrityError
 from django.db.models import F, Value, CharField, Q
 from django.db.models.functions import Concat
 
-from applications.employee.api.serializer import EmployeeSerializer, LoginTokenObtainPairSerializer, LoginUserSerializer
-from applications.employee.models import Employee
+from applications.employee.api.serializer import CreateUserSerializer, EmployeeSerializer, LoginTokenObtainPairSerializer, LoginUserSerializer
+from applications.employee.models import Employee, UserCompany
 from remunerations.decorators import verify_token_cls
 from remunerations.utils import decode_token
+
+
+@verify_token_cls
+class CreateEmployeeView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CreateUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                rut = serializer.validated_data['rut']
+                email = serializer.validated_data['email']
+                first_name = serializer.validated_data['first_name']
+                last_name = serializer.validated_data['last_name']
+
+                user = User.objects.create(
+                    username=rut,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    is_active=True, 
+                    is_staff=False, 
+                    is_superuser=False
+                )
+                
+                user.set_password(rut)
+                user.save()
+
+                employee = Employee()
+                employee.user = user
+                employee.emp_rut = rut
+                employee.save()
+
+                employee_company = UserCompany()
+                employee_company.user = user
+                employee_company.save()
+
+                return Response({'id': user.id, 'success': True}, status=status.HTTP_201_CREATED)
+
+            except IntegrityError as e:
+                return Response({'error': f'El colaborador con RUT {rut} ya existe.', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+            
+            except Exception as e:
+                return Response({'error': str(e), 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error': serializer.errors, 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @verify_token_cls

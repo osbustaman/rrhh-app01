@@ -57,14 +57,14 @@ class Employee(models.Model):
     emp_foreign = models.CharField("Extranjero", choices=YES_NO_OPTIONS, max_length=1, default="Y")
     emp_nationality = models.CharField("Nacionalidad", max_length=100, blank=True, null=True, default='chilen@')
     emp_rut = models.CharField("RUT", max_length=12, unique=True)
-    emp_sex = models.CharField("Sexo", max_length=1, choices=SEX_OPTIONS)
-    emp_birthdate = models.DateField("Fecha de nacimiento")
-    emp_civilstatus = models.IntegerField("Estado civil", choices=CIVIL_STATUS_OPTIONS)
-    emp_address = models.TextField("Dirección")
+    emp_sex = models.CharField("Sexo", max_length=1, choices=SEX_OPTIONS, null=True, blank=True)
+    emp_birthdate = models.DateField("Fecha de nacimiento", null=True, blank=True)
+    emp_civilstatus = models.IntegerField("Estado civil", choices=CIVIL_STATUS_OPTIONS, null=True, blank=True)
+    emp_address = models.TextField("Dirección", null=True, blank=True)
     
-    country = models.ForeignKey(Country, verbose_name="Country", db_column="emp_country_id", on_delete=models.PROTECT)
-    region = models.ForeignKey(Region, verbose_name="Region", db_column="emp_region_id", on_delete=models.PROTECT)
-    commune = models.ForeignKey(Commune, verbose_name="Commune", db_column="empom_commune_id", on_delete=models.PROTECT)
+    country = models.ForeignKey(Country, verbose_name="Country", db_column="emp_country_id", on_delete=models.PROTECT, null=True, blank=True)
+    region = models.ForeignKey(Region, verbose_name="Region", db_column="emp_region_id", on_delete=models.PROTECT, null=True, blank=True)
+    commune = models.ForeignKey(Commune, verbose_name="Commune", db_column="empom_commune_id", on_delete=models.PROTECT, null=True, blank=True)
     
     emp_latitude = models.CharField("Latitud", max_length=255, null=True, blank=True)
     emp_longitude = models.CharField("Longitud", max_length=255, null=True, blank=True)
@@ -99,7 +99,7 @@ class UserCompany(TimeStampedModel):
     user = models.ForeignKey(User, verbose_name="User",
                             db_column="uc_user_id", on_delete=models.PROTECT)
     company = models.ForeignKey(
-        Company, verbose_name="Company", db_column="uc_company_id", on_delete=models.PROTECT)
+        Company, verbose_name="Company", db_column="uc_company_id", null=True, blank=True, related_name="user_company", on_delete=models.PROTECT)
     position = models.ForeignKey(
         Position, verbose_name="Position", db_column="uc_position_id", on_delete=models.PROTECT, null=True, blank=True, related_name="user_emp_position")
     subsidiary = models.ForeignKey(

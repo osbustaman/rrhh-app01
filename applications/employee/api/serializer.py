@@ -22,6 +22,14 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')
 
 
+class CreateUserSerializer(serializers.ModelSerializer):
+    rut = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'rut', 'email', 'first_name', 'last_name')
+
+
 class EmployeeSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', allow_null=True)
     full_name = serializers.SerializerMethodField()

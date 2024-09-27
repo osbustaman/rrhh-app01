@@ -14,6 +14,8 @@ from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from unidecode import unidecode
 
+from remunerations.utils import create_folder
+
 # Create your models here.
 
 
@@ -1111,6 +1113,8 @@ class Customers(TimeStampedModel):
                 Afp.objects.using(self.cus_name_bd).create(
                     **afp_data
                 )
+    def __create_folder_customers(self):
+        return create_folder(self.cus_name_bd)
 
     populate_customer_base_regions_and_comunnes = property(__populate_customer_base_regions_and_comunnes)
     create_name_db = property(__create_name_db)
@@ -1121,6 +1125,7 @@ class Customers(TimeStampedModel):
     create_afp = property(__create_afp)
     create_mutual_security = property(__create_mutual_security)
     create_health_institution = property(__create_health_institution)
+    create_folder_customers = property(__create_folder_customers)
 
     def save(self, *args, **kwargs):
         self.cus_name = self.cus_name.lower()
@@ -1136,6 +1141,8 @@ class Customers(TimeStampedModel):
         self.create_afp
         self.create_mutual_security
         self.create_health_institution
+
+        self.cus_directory_path = self.create_folder_customers
 
         super(Customers, self).save(*args, **kwargs)
 

@@ -17,6 +17,13 @@ from remunerations.utils import decode_token
 
 
 @verify_token_cls
+class RetrieveUserEmployee(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = CreateUserSerializer
+    lookup_field = 'id'
+
+
+@verify_token_cls
 class CreateEmployeeView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = CreateUserSerializer
@@ -63,7 +70,6 @@ class CreateEmployeeView(generics.CreateAPIView):
             return Response({'error': serializer.errors, 'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @verify_token_cls
 class ListEmployees(generics.ListAPIView):
     serializer_class = EmployeeSerializer
@@ -108,6 +114,7 @@ class GetDataUser(generics.GenericAPIView):
             return Response(user_serializer.data, status=status.HTTP_200_OK)
         
         return Response({'message': 'No existe este usuario'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class LoginUser(TokenObtainPairView):

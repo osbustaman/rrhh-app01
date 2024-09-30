@@ -2,7 +2,8 @@ import re
 from rest_framework import serializers
 
 from applications.company.models import (
-    Area
+    Area,
+    Bank
     , BoxesCompensation
     , CenterCost
     , Company
@@ -49,6 +50,12 @@ def validate_mail(correo):
         return True
     else:
         return False
+    
+    
+class BankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bank
+        fields = ['ban_id', 'ban_name', 'ban_code', 'ban_active']
 
 
 class PositionSerializer(serializers.ModelSerializer):

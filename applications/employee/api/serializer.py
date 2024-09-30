@@ -8,6 +8,35 @@ from applications.employee.models import Employee
 class LoginTokenObtainPairSerializer(TokenObtainPairSerializer):
     pass
 
+
+# Employee serializer bank
+class UpdateMethodOfPaymentEmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ('emp_id', 'emp_paymentformat', 'emp_accounttype', 'emp_bankaccount', 'bank')
+
+
+# Employee serializer
+class UpdateEmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ('emp_id',
+                    'emp_foreign',
+                    'emp_nationality',
+                    'emp_rut',
+                    'emp_sex',
+                    'emp_birthdate',
+                    'emp_civilstatus',
+                    'emp_address',
+                    'emp_studies',
+                    'emp_studiesstatus',
+                    'emp_title',
+                    'emp_drivellicense',
+                    'emp_typelicense',
+                    'country',
+                    'region',
+                    'commune')
+
 # User serializer
 class LoginUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,7 +56,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'rut', 'email', 'first_name', 'last_name')
+        fields = ('id', 'username', 'rut', 'email', 'first_name', 'last_name')
 
 
 class EmployeeSerializer(serializers.ModelSerializer):

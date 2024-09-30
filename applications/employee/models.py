@@ -54,7 +54,7 @@ class Employee(models.Model):
     
     emp_id = models.AutoField("ID", primary_key=True)
     user = models.ForeignKey(User, verbose_name="Usuario", on_delete=models.PROTECT, null=True, blank=True)
-    emp_foreign = models.CharField("Extranjero", choices=YES_NO_OPTIONS, max_length=1, default="Y")
+    emp_foreign = models.CharField("Extranjero", choices=YES_NO_OPTIONS, max_length=1, default="N")
     emp_nationality = models.CharField("Nacionalidad", max_length=100, blank=True, null=True, default='chilen@')
     emp_rut = models.CharField("RUT", max_length=12, unique=True)
     emp_sex = models.CharField("Sexo", max_length=1, choices=SEX_OPTIONS, null=True, blank=True)
@@ -69,8 +69,8 @@ class Employee(models.Model):
     emp_latitude = models.CharField("Latitud", max_length=255, null=True, blank=True)
     emp_longitude = models.CharField("Longitud", max_length=255, null=True, blank=True)
     
-    emp_studies = models.IntegerField("Tipo de estudios", choices=STUDY_TYPE_OPTIONS, default=1)
-    emp_studiesstatus = models.IntegerField("Estado de estudios", choices=STUDY_STATUS_OPTIONS, default=1)
+    emp_studies = models.IntegerField("Tipo de estudios", choices=STUDY_TYPE_OPTIONS, null=True, blank=True)
+    emp_studiesstatus = models.IntegerField("Estado de estudios", choices=STUDY_STATUS_OPTIONS, null=True, blank=True)
     emp_title = models.CharField("Título", max_length=100, null=True, blank=True)
     
     emp_paymentformat = models.IntegerField("Forma de pago", choices=PAYMENT_METHOD_OPTIONS, null=True, blank=True)

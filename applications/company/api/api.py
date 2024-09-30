@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from applications.company.api.serializer import (
-    AreaSerializer
+    AreaSerializer,
+    BankSerializer
     , BoxesCompensationSerializer
     , CenterCostSerializer
     , CompanySerializer
@@ -16,7 +17,8 @@ from applications.company.api.serializer import (
     , SubsidiarySerializer
 )
 from applications.company.models import (
-    Area
+    Area,
+    Bank
     , BoxesCompensation
     , CenterCost
     , Company
@@ -26,6 +28,11 @@ from applications.company.models import (
     , Subsidiary
 )
 from remunerations.decorators import verify_token_cls
+
+@verify_token_cls
+class ListBanksView(generics.ListAPIView):
+    queryset = Bank.objects.all()
+    serializer_class = BankSerializer
 
 
 @verify_token_cls

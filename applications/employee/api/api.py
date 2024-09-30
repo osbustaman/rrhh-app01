@@ -10,10 +10,49 @@ from django.db import IntegrityError
 from django.db.models import F, Value, CharField, Q
 from django.db.models.functions import Concat
 
-from applications.employee.api.serializer import CreateUserSerializer, EmployeeSerializer, LoginTokenObtainPairSerializer, LoginUserSerializer
+from applications.employee.api.serializer import (
+    CreateUserSerializer
+    , EmployeeSerializer
+    , LoginTokenObtainPairSerializer
+    , LoginUserSerializer
+    , UpdateEmployeeSerializer
+    , UpdateMethodOfPaymentEmployeeSerializer
+)
+
 from applications.employee.models import Employee, UserCompany
 from remunerations.decorators import verify_token_cls
 from remunerations.utils import decode_token
+
+
+
+@verify_token_cls
+class UpdateUpdateMethodOfPaymentEmployee(generics.UpdateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = UpdateMethodOfPaymentEmployeeSerializer
+    lookup_field = 'user_id'
+
+
+@verify_token_cls
+class UpdateUserEmplEmployeeByUserId(generics.UpdateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = UpdateEmployeeSerializer
+    lookup_field = 'user_id'
+
+
+@verify_token_cls
+class EmployeeByUserIdView(generics.RetrieveAPIView):
+    serializer_class = UpdateEmployeeSerializer
+    lookup_field = 'user_id'
+
+    def get_queryset(self):
+        return Employee.objects.all()
+
+
+@verify_token_cls
+class UpdateUserEmployee(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CreateUserSerializer
+    lookup_field = 'id'
 
 
 @verify_token_cls
@@ -114,7 +153,6 @@ class GetDataUser(generics.GenericAPIView):
             return Response(user_serializer.data, status=status.HTTP_200_OK)
         
         return Response({'message': 'No existe este usuario'}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class LoginUser(TokenObtainPairView):

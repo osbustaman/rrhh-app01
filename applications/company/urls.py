@@ -23,6 +23,7 @@ from applications.company.api.api import (
     GetSubsidiary,
     ListArea,
     ListAssociatedEntities,
+    ListBanksView,
     ListCenterCost,
     ListDepartament,
     ListPosition,
@@ -51,6 +52,8 @@ urlpatterns = [
     path('edit-company/<int:pk>/', EditCompany.as_view(), name='edit-company'),
     path('view-company/<int:pk>/', GetCompany.as_view(), name='view-company'),
     path('delete-company/<int:pk>/', DeleteCompany.as_view(), name='delete-company'),
+
+    path('list-banks', ListBanksView.as_view(), name='ListBanksView'),
     
     path('create-branch-office/<int:pk>/', CreateSubsidiary.as_view(), name='create-branch-office'),
     path('view-branch-office/<int:pk>/', GetSubsidiary.as_view(), name='create-branch-office'),

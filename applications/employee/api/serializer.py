@@ -2,18 +2,89 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 
-from applications.employee.models import Employee
+from applications.employee.models import Employee, UserCompany
 
 
 class LoginTokenObtainPairSerializer(TokenObtainPairSerializer):
     pass
+
+# User Company data serializer
+class UserCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCompany
+        fields = (
+                    'company', 
+                    'position', 
+                    'subsidiary', 
+                    'uc_is_boss', 
+                    'uc_estate_employee', 
+                    'uc_workertype', 
+                    'uc_contracttype', 
+                    'uc_hiring_date', 
+                    'uc_daterenewalcontract', 
+                    'uc_weeklyhours', 
+                    'uc_agreedworkdays',
+                    'uc_gratification',
+                    'uc_typegratification',
+                    'uc_semanacorrida',
+                    'uc_workersector',
+                    'uc_type_user',
+                )
+
+
+# user remuneration data serializer
+class UserRemunerationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCompany
+        fields = (
+                    'uc_familyassignment', 
+                    'uc_family_allowance_section', 
+                    'uc_familialloads', 
+                    'uc_amountfamilyassignment', 
+                    'uc_basesalary',
+                    'uc_gratification',
+                    'uc_typegratification',
+                    'uc_semanacorrida',
+                    'uc_workersector',
+        )
+
+
+# User Company Forecast data serializer
+class UserCompanyForecastSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCompany
+        fields = (
+                    'afp', 
+                    'health', 
+                    'uc_ufisapre', 
+                    'uc_funisapre'
+                )
+        
+
+# Terminated user data serializer terminated user
+class TerminatedUserCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCompany
+        fields = (
+                    'uc_datenotificationletternotice', 
+                    'eu_enddate', 
+                    'uc_causal', 
+                    'uc_foundation',
+                    'uc_tiponotication'
+                )
 
 
 # Employee serializer bank
 class UpdateMethodOfPaymentEmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = ('emp_id', 'emp_paymentformat', 'emp_accounttype', 'emp_bankaccount', 'bank')
+        fields = (
+            'emp_id', 
+            'emp_paymentformat', 
+            'emp_accounttype', 
+            'emp_bankaccount', 
+            'bank'
+        )
 
 
 # Employee serializer
@@ -35,7 +106,8 @@ class UpdateEmployeeSerializer(serializers.ModelSerializer):
                     'emp_typelicense',
                     'country',
                     'region',
-                    'commune')
+                    'commune',
+                    'emp_id', 'emp_paymentformat', 'emp_accounttype', 'emp_bankaccount', 'bank')
 
 # User serializer
 class LoginUserSerializer(serializers.ModelSerializer):

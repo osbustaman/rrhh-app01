@@ -17,12 +17,27 @@ from applications.employee.api.serializer import (
     , LoginUserSerializer
     , UpdateEmployeeSerializer
     , UpdateMethodOfPaymentEmployeeSerializer
+    , UserCompanySerializer
 )
 
 from applications.employee.models import Employee, UserCompany
 from remunerations.decorators import verify_token_cls
 from remunerations.utils import decode_token
 
+
+
+@verify_token_cls
+class RetrieveUserUserCompanyByUserId(generics.RetrieveAPIView):
+    queryset = UserCompany.objects.all()
+    serializer_class = UserCompanySerializer
+    lookup_field = 'user_id'
+
+
+@verify_token_cls
+class UpdateUserCompanyByUserId(generics.UpdateAPIView):
+    queryset = UserCompany.objects.all()
+    serializer_class = UserCompanySerializer
+    lookup_field = 'user_id'
 
 
 @verify_token_cls
@@ -150,7 +165,27 @@ class GetDataUser(generics.GenericAPIView):
         user = User.objects.filter(id=user_id).first()
         if user:
             user_serializer = LoginUserSerializer(user)
-            return Response(user_serializer.data, status=status.HTTP_200_OK)
+
+            employee = Employee.objects.filter(user=user).first()
+            employee_serializer = UpdateEmployeeSerializer(employee)
+
+            user_company = UserCompany.objects.filter(user=user).first()
+            user_company_serializer = UserCompanySerializer(user_company)
+
+            user_serializer.data['employee'] = employee_serializer.data
+            user_serializer.data['user_company'] = user_company_serializer.data
+
+            response = {
+                            'id': user_serializer.data['id'],
+                            'username': user_serializer.data['username'],
+                            'email': user_serializer.data['email'],
+                            'first_name': user_serializer.data['first_name'],
+                            'last_name': user_serializer.data['last_name'],
+                            'employee': employee_serializer.data,
+                            'user_company': user_company_serializer.data
+                        }
+
+            return Response(response, status=status.HTTP_200_OK)
         
         return Response({'message': 'No existe este usuario'}, status=status.HTTP_400_BAD_REQUEST)
 

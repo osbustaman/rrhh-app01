@@ -6,8 +6,10 @@ from applications.employee.api.api import (
     , EmployeeByUserIdView
     , GetDataUser
     , ListEmployees
-    , RetrieveUserEmployee,
-    UpdateUpdateMethodOfPaymentEmployee
+    , RetrieveUserEmployee
+    , RetrieveUserUserCompanyByUserId
+    , UpdateUpdateMethodOfPaymentEmployee
+    , UpdateUserCompanyByUserId
     , UpdateUserEmplEmployeeByUserId
     , UpdateUserEmployee
 )
@@ -26,4 +28,8 @@ urlpatterns = [
     path('employee/by-user/<int:user_id>/', EmployeeByUserIdView.as_view(), name='employee-by-user-id'),
     path('update-employee/by-user/<int:user_id>/', UpdateUserEmplEmployeeByUserId.as_view(), name='update-employee-by-user-id'),
     path('update-method-of-payment/by-user/<int:user_id>/', UpdateUpdateMethodOfPaymentEmployee.as_view(), name='update-method-of-payment-by-user-id'),
+
+
+    path('update-user-company/by-user/<int:user_id>/', UpdateUserCompanyByUserId.as_view(), name='update-user-company-by-user-id'),
+    path('get-user-company/by-user/<int:user_id>/', RetrieveUserUserCompanyByUserId.as_view(), name='get-user-company'),
 ]

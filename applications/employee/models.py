@@ -122,9 +122,10 @@ class UserCompany(TimeStampedModel):
         "Horas trabajadas", null=True, blank=True, default=45)
     uc_agreedworkdays = models.CharField(
         "Dias de trabajo pactados", null=True, blank=True, max_length=255)
+    
+
     uc_familyassignment = models.CharField(
         "Asignación familiar", choices=YES_NO_OPTIONS, max_length=1, null=True, blank=True, default="N")
-    
     uc_family_allowance_section = models.IntegerField(
         "Tramo asignación familiar", choices=FAMILY_ALLOWANCE_SECTION, null=True, blank=True)
     uc_familialloads = models.IntegerField(
@@ -133,6 +134,8 @@ class UserCompany(TimeStampedModel):
         "Monto asignación familiar", max_digits=15, decimal_places=2, null=True, blank=True, default=0)
     uc_basesalary = models.DecimalField(
         "Sueldo base", max_digits=15, decimal_places=6, null=True, blank=True, default=0)
+    
+    
     uc_gratification = models.CharField(
         "Tiene gratificación", choices=YES_NO_OPTIONS, max_length=1, null=True, blank=True)
     uc_typegratification = models.CharField(
@@ -142,6 +145,8 @@ class UserCompany(TimeStampedModel):
     uc_workersector = models.IntegerField(
         "Sector del trabajador", choices=WORKER_SECTOR, null=True, blank=True)
     
+
+
     afp = models.ForeignKey(Afp, verbose_name="AFP", db_column="uc_afp_id",
                             on_delete=models.PROTECT, null=True, blank=True)
     health = models.ForeignKey(Health, verbose_name="Salud", db_column="uc_health_id",
@@ -150,6 +155,8 @@ class UserCompany(TimeStampedModel):
         "Valor en UF isapre", null=True, blank=True, default=0)
     uc_funisapre = models.CharField(
         "Fun isapre", max_length=100, null=True, blank=True)
+
+
 
     uc_datenotificationletternotice = models.DateField(
         "Fecha de notificacion carta aviso", null=True, blank=True)

@@ -1,4 +1,10 @@
+import base64
+import binascii
+import os
+
 from django.contrib.auth import authenticate
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -17,13 +23,90 @@ from applications.employee.api.serializer import (
     , LoginUserSerializer
     , UpdateEmployeeSerializer
     , UpdateMethodOfPaymentEmployeeSerializer
+    , UploadFileSerializer
     , UserCompanySerializer
 )
 
 from applications.employee.models import Employee, UserCompany
 from remunerations.decorators import verify_token_cls
-from remunerations.utils import decode_token
+from remunerations.utils import create_folder_collaborator, decode_token, get_subdomain, upload_file_to_s3
 
+@verify_token_cls
+class UploadFileView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UploadFileSerializer
+
+    def get_data_base(self, user_id):
+        return f'{self.queryset.db}/{user_id}'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            # Validar los datos del serializer
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            # Extraer datos validados
+            file_base64 = serializer.validated_data.get('file_base64')
+            file_name = str(serializer.validated_data.get("user_id"))
+            directory_name = self.get_data_base(file_name)
+
+            file_image = f'{file_name}_photo_perfil.jpg'
+
+            # Validar que los campos no estén vacíos
+            if not file_base64 or not file_name or not directory_name:
+                raise ValidationError("Missing file_base64, file_name or directory_name fields")
+
+            # Decodificar el archivo base64
+            try:
+                file_data = base64.b64decode(file_base64)
+            except (TypeError, binascii.Error) as e:
+                raise ValidationError(f"Invalid base64 encoding: {e}")
+
+            # Validar el tamaño del archivo
+            if len(file_data) > settings.MAX_UPLOAD_SIZE:
+                raise ValidationError("File size exceeds the maximum allowed limit")
+
+            # Validar el formato del nombre de archivo (opcional)
+            if not self.is_valid_file_name(file_image):
+                raise ValidationError("Invalid file name format")
+
+            # Crear la ruta donde se guardará el archivo
+            file_path = os.path.join(settings.MEDIA_ROOT, file_image)
+
+            # Guardar el archivo temporalmente
+            try:
+                with open(file_path, 'wb') as file:
+                    file.write(file_data)
+            except OSError as e:
+                raise ValidationError(f"Error writing file to disk: {e}")
+
+            # Subir el archivo a S3
+            file_url = upload_file_to_s3(file_path, directory_name, file_image)
+
+            # Eliminar el archivo temporalmente guardado
+            try:
+                os.remove(file_path)
+            except OSError as e:
+                raise ValidationError(f"Error deleting temporary file: {e}")
+
+            # Verificar que la subida fue exitosa
+            if file_url:
+                return Response({'file_url': file_url}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Error uploading file to S3'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def is_valid_file_name(self, file_name):
+        """Valida el formato del nombre del archivo (opcional)"""
+        allowed_extensions = ['jpg', 'png']  # Agregar extensiones permitidas
+        if '.' not in file_name:
+            return False
+        ext = file_name.split('.')[-1].lower()
+        return ext in allowed_extensions
 
 
 @verify_token_cls
@@ -82,6 +165,9 @@ class CreateEmployeeView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = CreateUserSerializer
 
+    def create_folder_users(self, user_id):
+        return create_folder_collaborator(self.queryset.db, user_id)
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -112,6 +198,8 @@ class CreateEmployeeView(generics.CreateAPIView):
                 employee_company = UserCompany()
                 employee_company.user = user
                 employee_company.save()
+
+                self.create_folder_users(user.id)
 
                 return Response({'id': user.id, 'success': True}, status=status.HTTP_201_CREATED)
 
@@ -228,7 +316,6 @@ class LoginUser(TokenObtainPairView):
 
 @verify_token_cls
 class LogoutUser(generics.GenericAPIView):
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         token = request.headers.get("token")

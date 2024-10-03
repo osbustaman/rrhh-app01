@@ -320,8 +320,7 @@ class Customers(TimeStampedModel):
             # Cerrar la conexión y el cursor
             cursor.close()
             connection.close()
-
-
+            
         return True
 
     def __create_migrate(self):

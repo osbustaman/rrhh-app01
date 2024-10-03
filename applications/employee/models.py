@@ -171,6 +171,9 @@ class UserCompany(TimeStampedModel):
         "Tipo de notificacion", choices=TYPE_USERS, null=True, blank=True)
     
 
+    uc_user_image = models.TextField(
+        "ruta imagen", null=True, blank=True)
+
     def __int__(self):
         return self.uc_id
 

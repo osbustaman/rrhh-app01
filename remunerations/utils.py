@@ -3,13 +3,13 @@ import datetime
 import re
 
 from jwt import encode, decode, ExpiredSignatureError, InvalidSignatureError
+from requests import request
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-
 from decouple import config
-
+from urllib.parse import urlparse
 
 # Lista negra para almacenar tokens revocados
 blacklist = set()
@@ -95,6 +95,13 @@ def validarRut(rut):
     return dv == dv_calculado
 
 
+def get_subdomain():
+    parsed_url = urlparse(request.build_absolute_uri())
+    hostname = parsed_url.hostname
+    subdomain = hostname.split('.')[0] if hostname else None
+    return subdomain
+
+
 def create_folder(cus_name_bd):
     # Inicializar el cliente de S3 con las credenciales de AWS
     s3 = boto3.client(
@@ -123,3 +130,66 @@ def create_folder(cus_name_bd):
 
     print(f"Directory '{directory_name}' created in bucket '{bucket_name}'")
     return directory_name
+
+
+def create_folder_collaborator(cus_name_bd, user_id):
+    # Inicializar el cliente de S3 con las credenciales de AWS
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION
+    )
+
+    # Nombre del bucket
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+
+    # Crear una "carpeta" (un directorio vacío) en el bucket de S3
+    directory_name = f"customers/{cus_name_bd}/{user_id}"
+
+    # Verificar si el directorio ya existe
+    response = s3.list_objects_v2(Bucket=bucket_name, Prefix=directory_name, MaxKeys=1)
+
+    # Si ya existe, no hacer nada
+    if 'Contents' in response:
+        print(f"Directory '{directory_name}' already exists in bucket '{bucket_name}'")
+        return directory_name 
+
+    # Si no existe, crear el directorio
+    s3.put_object(Bucket=bucket_name, Key=directory_name)
+
+    print(f"Directory '{directory_name}' created in bucket '{bucket_name}'")
+    return directory_name
+
+
+def upload_file_to_s3(file_path, directory_name, file_name):
+    """
+    Sube un archivo a un directorio específico en un bucket de S3.
+
+    :param file_path: Ruta local del archivo a subir.
+    :param directory_name: Nombre del directorio en el bucket de S3.
+    :param file_name: Nombre del archivo en el bucket de S3.
+    :return: URL del archivo subido.
+    """
+    # Inicializar el cliente de S3 con las credenciales de AWS
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION
+    )
+
+    # Ruta completa en el bucket de S3
+    s3_path = f"{directory_name}/{file_name}"
+
+    try:
+        # Subir el archivo
+        s3.upload_file(file_path, settings.BUCKET_NAME, s3_path)
+        print(f"File '{file_name}' uploaded to '{s3_path}' in bucket '{settings.BUCKET_NAME}'")
+
+        # Obtener la URL del archivo subido2
+        file_url = f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{s3_path}"
+        return file_url
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+        return None

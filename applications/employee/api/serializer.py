@@ -147,3 +147,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         if obj.user:
             return f"{obj.user.first_name.title()} {obj.user.last_name.title()}"
         return None
+    
+class UploadFileSerializer(serializers.Serializer):
+    file_base64 = serializers.CharField()
+    user_id = serializers.IntegerField()
